@@ -1,0 +1,491 @@
+# -*- coding: utf-8 -*-
+"""
+Presentación Web Interactiva: Central de Ciclo Combinado Dock Sud - YPF Luz
+Autor: Senior Frontend + UX Engineer (Asistente de IA)
+"""
+import streamlit as st
+import math
+
+# --- CONFIGURACIÓN DE LA PÁGINA ---
+st.set_page_config(
+    page_title="Central Dock Sud - YPF Luz",
+    page_icon="⚡",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# --- ESTADO DE SESIÓN ---
+if 'slide' not in st.session_state:
+    st.session_state.slide = 0
+
+# --- LISTA DE INTEGRANTES (Variable para facilitar la edición) ---
+INTEGRANTES = [
+    "Jesus Castellanos", "Lucas Espinola", "Tobias Copa",
+    "Joaquin Huaman", "Brian Alcon"
+]
+
+# --- CSS PERSONALIZADO ---
+def local_css():
+    """
+    Inyecta CSS para un tema oscuro, tarjetas y modo presentación.
+    """
+    css = """
+    <style>
+        /* --- TEMA OSCURO Y TIPOGRAFÍA --- */
+        body {
+            color: #EAEAEA;
+        }
+        .stApp {
+            background-color: #0f172a; /* Azul oscuro principal */
+        }
+        h1, h2, h3 {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-weight: 600;
+        }
+        p, li, .stMarkdown {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 16px;
+        }
+        .stButton>button {
+            border-radius: 8px;
+            border: 1px solid #38bdf8; /* Borde azul claro */
+            background-color: transparent;
+            color: #38bdf8;
+            transition: all 0.2s ease-in-out;
+        }
+        .stButton>button:hover {
+            background-color: #38bdf8;
+            color: #0f172a;
+        }
+        .stButton>button:disabled, .stButton>button:disabled:hover {
+             border: 1px solid #475569;
+             background-color: transparent;
+             color: #475569;
+        }
+
+        /* --- ESTILO DE TARJETAS --- */
+        .card {
+            background-color: #1e293b; /* Azul un poco más claro */
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 10px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(56, 189, 248, 0.1);
+        }
+        .card-title {
+            color: #38bdf8; /* Azul claro para títulos de tarjeta */
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        /* --- MODO PRESENTACIÓN --- */
+        .presentation-mode [data-testid="stSidebar"] {
+            display: none;
+        }
+        .presentation-mode .main .block-container {
+            max-width: 90%;
+            padding-top: 1rem;
+        }
+        .presentation-mode .stProgress {
+            display: none;
+        }
+        .presentation-mode .nav-buttons {
+            display: none;
+        }
+
+    </style>
+    """
+    st.markdown(css, unsafe_allow_html=True)
+
+# --- SECCIONES / CAPÍTULOS ---
+
+def seccion_caratula():
+    """Renderiza la portada de la presentación."""
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 4, 1])
+    with col1:
+        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/YPF_Luz_logo.svg/2560px-YPF_Luz_logo.svg.png", width=150)
+    with col2:
+        st.title("Central de Ciclo Combinado Dock Sud")
+        st.subheader("Análisis Técnico y Operativo en el Mercado Eléctrico Argentino")
+    with col3:
+        st.image("https://www.cammesa.com/wp-content/uploads/2023/10/logo-cammesa-blanco.png", width=180)
+
+    st.markdown("---")
+
+    st.subheader("Integrantes")
+    cols = st.columns(len(INTEGRANTES))
+    for i, nombre in enumerate(INTEGRANTES):
+        with cols[i]:
+            st.info(nombre)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def seccion_fundamentos():
+    """Capítulo 1: Fundamentos de la Generación Termoeléctrica."""
+    st.header("1. Fundamentos de la Generación Termoeléctrica")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<p class="card-title">Conceptos Clave</p>', unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Ciclo Brayton (Turbina de Gas - TG)")
+        st.write("""
+        Es un ciclo termodinámico de gas que describe el funcionamiento de las turbinas de gas.
+        - **Compresión:** El aire es comprimido adiabáticamente.
+        - **Combustión:** Se añade combustible y se quema a presión constante, aumentando la temperatura y entalpía.
+        - **Expansión:** Los gases calientes se expanden en la turbina, generando trabajo mecánico.
+        - **Escape:** Los gases se liberan a la atmósfera.
+        Su principal ventaja es la rápida respuesta y alta potencia específica.
+        """)
+        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Brayton_cycle.svg/400px-Brayton_cycle.svg.png", caption="Diagrama P-V y T-S del Ciclo Brayton ideal.")
+
+    with col2:
+        st.subheader("Ciclo Rankine (Turbina de Vapor - TV)")
+        st.write("""
+        Ciclo de potencia que utiliza un fluido de trabajo en dos fases (líquido-vapor), típicamente agua.
+        - **Bombeo:** El agua líquida es bombeada a alta presión.
+        - **Calentamiento:** El agua se calienta en una caldera hasta convertirse en vapor sobrecalentado.
+        - **Expansión:** El vapor se expande en una turbina, produciendo trabajo.
+        - **Condensación:** El vapor se enfría y condensa, volviendo a fase líquida.
+        Se caracteriza por su alta eficiencia térmica, pero con mayor inercia.
+        """)
+        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Rankine_cycle_T-S_diagram.svg/400px-Rankine_cycle_T-S_diagram.svg.png", caption="Diagrama T-S del Ciclo Rankine.")
+
+    st.markdown("---")
+    st.subheader("Ciclo Combinado (Brayton + Rankine)")
+    st.write("""
+    El ciclo combinado acopla un ciclo Brayton con un ciclo Rankine para maximizar la eficiencia. Los gases de escape calientes de la turbina de gas (aprox. 600-650°C), que de otro modo se desperdiciarían, se utilizan para generar vapor en una **Caldera de Recuperación de Calor (HRSG)**. Este vapor alimenta una turbina de vapor, generando electricidad adicional sin consumir más combustible.
+    """)
+
+    st.latex(r'\eta_{cc} = \eta_{Brayton} + (1 - \eta_{Brayton})\eta_{Rankine}')
+
+    st.info("La eficiencia de un ciclo combinado moderno supera el 60%, muy por encima del 35-42% de un ciclo Brayton simple o un ciclo Rankine convencional.")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def seccion_historia():
+    """Capítulo 2: Historia de la Central Dock Sud."""
+    st.header("2. Historia de la Central Dock Sud")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        st.markdown('<p class="card-title">Línea de Tiempo</p>', unsafe_allow_html=True)
+        st.markdown("""
+        - **1907:** La Compañía Alemana Transatlántica de Electricidad (CATE) inaugura la "Usina CATE" en Dock Sud, la más grande de Sudamérica en su momento.
+        - **1944:** El Estado Nacional interviene la CATE.
+        - **1960:** La central pasa a formar parte de **Servicios Eléctricos del Gran Buenos Aires (SEGBA)**, unificando la generación y distribución.
+        - **1992:** En el marco de la privatización del sector, SEGBA se divide. La central es adquirida por un consorcio y se constituye **Central Dock Sud S.A. (CDSSA)**.
+        - **Década 2000-2010:** Modernización y expansión con la instalación de nuevas unidades de ciclo combinado para aumentar la eficiencia y capacidad.
+        - **2019:** **YPF LUZ** (subsidiaria de YPF S.A.) y otras empresas adquieren una participación mayoritaria, consolidando la central como un activo estratégico en el sistema eléctrico nacional.
+        """)
+    with col2:
+        st.image("https://dockdelplata.com.ar/wp-content/uploads/2019/12/Dock-del-Plata-9.jpg", caption="Vista aérea del complejo Dock Sud. [Imagen referencial]")
+
+    st.success("La central ha sido un pilar en la historia energética argentina, evolucionando desde la tecnología de principios del siglo XX hasta los ciclos combinados de alta eficiencia actuales.")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+def seccion_mea():
+    """Capítulo 3: Mercado Eléctrico Argentino."""
+    st.header("3. Mercado Eléctrico Argentino (MEA)")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<p class="card-title">Actores y Funcionamiento</p>', unsafe_allow_html=True)
+
+    st.write("""
+    El MEA es un mercado mayorista donde los generadores de energía (como Dock Sud) venden su producción y los grandes usuarios y distribuidores la compran. Todo el sistema está coordinado para garantizar la seguridad y el abastecimiento al menor costo posible.
+    """)
+
+    st.markdown("""
+    **Flujo Simplificado de Energía:**
+    ```
+    GENERACIÓN ---> TRANSPORTE ---> DISTRIBUCIÓN ---> USUARIOS
+    (Centrales)    (Transener)      (Edenor/Edesur)   (Hogares, Industrias)
+    ```
+    """)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Rol de CAMMESA")
+        st.write("""
+        La **Compañía Administradora del Mercado Mayorista Eléctrico S.A. (CAMMESA)** es el organismo encargado del Despacho Nacional de Cargas. Sus funciones principales son:
+        - **Planificación:** Coordinar la operación de generadores, transporte y demanda en tiempo real.
+        - **Despacho Técnico:** Decidir qué centrales se encienden y apagan para satisfacer la demanda al mínimo costo operativo, respetando las restricciones técnicas del sistema.
+        - **Administración Comercial:** Gestionar las transacciones económicas entre los actores del mercado.
+        - **Garantizar la Calidad:** Supervisar que la frecuencia (50 Hz) y la tensión se mantengan dentro de los rangos operativos seguros.
+        """)
+    with col2:
+        st.image("https://www.melectrico.com.ar/wp-content/uploads/2023/11/logo-cammesa-blanco.png", caption="Logo de CAMMESA", use_column_width=True)
+        st.info("""
+        **¿Cómo se despacha?**
+        CAMMESA ordena el arranque de las centrales en orden de mérito, comenzando por las de menor costo variable de producción (hidroeléctricas, nucleares, renovables) y escalando hacia las más costosas (ciclos combinados, turbinas de gas simples) hasta cubrir la demanda total.
+        """)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def seccion_descripcion_tecnica():
+    """Capítulo 4: Descripción Técnica del Ciclo Combinado."""
+    st.header("4. Descripción Técnica del Ciclo Combinado en Dock Sud")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<p class="card-title">Componentes Principales</p>', unsafe_allow_html=True)
+    st.markdown("""
+    **Diagrama de Bloques Simplificado:**
+    ```
+    Aire -> [Turbina de Gas (TG)] --(Gases Calientes)--> [Caldera (HRSG)] --(Vapor)--> [Turbina de Vapor (TV)] -> [Generador]
+           ^                     |                                                  |                        |
+           |                     +------> [Generador]                               +---> [Condensador] <----+ Agua
+    Combustible (Gas Natural)                                                                |
+                                                                                           |
+                                                                                           +--> [Bomba] --------+
+    ```
+    """)
+    col1, col2 = st.columns([3, 2])
+    with col1:
+        st.write("""
+        - **Turbina de Gas (TG):** Modelo **Alstom GT26**. Utiliza gas natural como combustible. El aire es comprimido, mezclado con gas, quemado y expandido para mover el generador. Los gases de escape salen a alta temperatura.
+        - **Caldera de Recuperación de Calor (HRSG):** Utiliza el calor de los gases de escape de la TG para convertir agua en vapor sobrecalentado a través de varios bancos de tubos (economizador, evaporador, sobrecalentador).
+        - **Turbina de Vapor (TV):** Modelo **Alstom DKZ2-1N41**. El vapor a alta presión y temperatura proveniente del HRSG se expande, haciendo girar un segundo generador.
+        - **Condensador:** Enfría el vapor de salida de la TV para convertirlo nuevamente en agua líquida, que es bombeada de regreso al HRSG, cerrando el ciclo. Utiliza agua del Río de la Plata como medio refrigerante.
+        """)
+    with col2:
+        st.markdown('<p class="card-title" style="text-align:center;">Datos de Placa (Aproximados)</p>', unsafe_allow_html=True)
+        st.table({
+            "Componente": ["Turbina de Gas (TG)", "Turbina de Vapor (TV)", "Potencia Total CC"],
+            "Potencia Nominal": ["~285 MW", "~291 MW", "~870 MW"],
+            "Velocidad": ["3000 RPM", "3000 RPM", "-"],
+            "Rel. Compresión (TG)": ["30:1", "-", "-"]
+        })
+        st.latex(r'\text{Balance Térmico Simple:} \quad Q_{in} = W_{TG} + W_{TV} + Q_{out}')
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+def seccion_generadores():
+    """Capítulo 5: Generadores Sincrónicos."""
+    st.header("5. Generadores Sincrónicos (Alstom)")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<p class="card-title">Generación Eléctrica</p>', unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Características Constructivas")
+        st.write("""
+        Los generadores acoplados a las turbinas son máquinas sincrónicas trifásicas diseñadas para alta potencia y operación continua.
+        - **Potencia Aparente (Sn):** ~390 MVA
+        - **Tensión Nominal:** 19 kV
+        - **Factor de Potencia:** 0.85 (típicamente)
+        - **Frecuencia:** 50 Hz
+        - **Velocidad Sincrónica:** 3000 RPM
+        """)
+        st.subheader("Sistema de Excitación Estática")
+        st.write("""
+        La excitación proporciona la corriente continua (CC) al campo del rotor para crear el flujo magnético. El sistema es estático, alimentado desde un transformador conectado a los bornes del generador.
+        - **Control:** Un **Regulador Automático de Tensión (AVR)** ajusta la corriente de excitación para mantener la tensión de salida del generador constante ante cambios de carga.
+        """)
+
+    with col2:
+        st.subheader("Refrigeración por Hidrógeno (H₂)")
+        st.write("""
+        Debido a las altas pérdidas por calor, los generadores de gran potencia utilizan hidrógeno como refrigerante por su alta conductividad térmica y baja densidad.
+        """)
+        st.info("""
+        **Flujo de H₂ (Simplificado):**
+        1.  El H₂ presurizado circula por conductos en el estator y rotor.
+        2.  Absorbe el calor de los devanados.
+        3.  El H₂ caliente pasa por **intercambiadores de calor** (enfriadores de H₂), donde cede el calor a un circuito secundario de agua.
+        4.  El H₂ frío es recirculado por ventiladores.
+        """)
+        st.warning("**Riesgos del Hidrógeno:** Es altamente inflamable. Se requieren sistemas de sellado de aceite en los ejes del rotor y detectores de fugas para una operación segura.")
+
+    st.subheader("Arranque con Convertidor Estático de Frecuencia (SFC)")
+    st.write("Para el arranque, la turbina de gas necesita ser llevada a una velocidad de auto-sostenimiento. El generador, actuando como motor, es alimentado por un **SFC** que le suministra energía a frecuencia y tensión variables, permitiendo un arranque controlado y suave.")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+def seccion_control_mantenimiento():
+    """Capítulo 6: Sistemas de Control y Mantenimiento."""
+    st.header("6. Sistemas de Control y Mantenimiento")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<p class="card-title">Operación y Confiabilidad</p>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Sistema de Control Distribuido (DCS)")
+        st.write("""
+        Toda la planta es monitoreada y operada desde una sala de control central a través de un **DCS**.
+        - **Arquitectura:** Red de controladores distribuidos por la planta, conectados a una red de alta velocidad.
+        - **Funciones:** Control secuencial (arranques/paradas), control regulatorio (temperatura, presión, nivel), sistemas de protección y alarmas.
+        - **Interfaz:** Los operadores interactúan con el proceso a través de pantallas **SCADA** (Supervisory Control And Data Acquisition) que muestran diagramas mímicos, tendencias y alarmas en tiempo real.
+        """)
+        st.subheader("Sistema de Identificación KKS")
+        st.write("""
+        **Kraftwerk-Kennzeichen-System** es un sistema de codificación alfanumérico estandarizado para identificar de forma unívoca cada componente, sistema y equipo en la central. Es fundamental para la operación, el mantenimiento y la documentación.
+        """)
+    with col2:
+        st.subheader("Estrategias de Mantenimiento")
+        st.write("""
+        Se aplican múltiples estrategias para maximizar la disponibilidad y confiabilidad de la planta.
+        - **Mantenimiento Preventivo:** Inspecciones y reemplazos programados basados en horas de operación o tiempo calendario.
+        - **Mantenimiento Predictivo:** Utiliza técnicas de monitoreo de condición (análisis de vibraciones, termografía, análisis de aceites) para predecir fallas antes de que ocurran.
+        - **Análisis de Causa Raíz (ACR):** Metodología para investigar fallas, identificar el origen del problema y evitar su recurrencia.
+        - **Planificación Operativa (PO):** Coordinación de los trabajos de mantenimiento con las necesidades del despacho de CAMMESA.
+        """)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def seccion_seguridad_ambiente():
+    """Capítulo 7: Seguridad y Medio Ambiente."""
+    st.header("7. Seguridad y Medio Ambiente")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<p class="card-title">Pilares de la Operación</p>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Políticas de Seguridad")
+        st.write("""
+        La seguridad es la máxima prioridad. Se implementan políticas rigurosas para proteger al personal, los equipos y la comunidad.
+        - **Política "Stop Work Authority":** Otorga a CUALQUIER empleado la autoridad y obligación de detener un trabajo si considera que las condiciones son inseguras, sin temor a represalias.
+        - **Análisis de Trabajo Seguro (ATS):** Procedimiento obligatorio antes de iniciar cualquier tarea no rutinaria para identificar y mitigar riesgos.
+        - **LOTO (Lock-Out / Tag-Out):** Sistema de bloqueo y etiquetado para asegurar que los equipos estén desenergizados antes de intervenir.
+        """)
+    with col2:
+        st.subheader("Riesgos Específicos y Mitigación")
+        st.table({
+            "Riesgo": ["Gas Natural", "Hidrógeno", "Alta Tensión", "Químicos"],
+            "Mitigación": ["Detectores de gas, ventilación, áreas clasificadas", "Detectores, sellos de aceite, purga con CO₂", "Procedimientos de bloqueo, EPP dieléctrico", "Hojas de seguridad (MSDS), EPP específico"]
+        })
+
+    st.subheader("Gestión Ambiental y Certificaciones")
+    st.write("""
+    La central opera bajo estrictas normativas ambientales para minimizar su impacto.
+    - **Monitoreo de Emisiones:** Control continuo de Óxidos de Nitrógeno (NOx) para cumplir con los límites legales.
+    - **Gestión de Efluentes:** Tratamiento del agua utilizada antes de su devolución al río.
+    - **Certificaciones (Placeholder):** Generalmente, estas plantas buscan certificaciones como **ISO 14001** (Gestión Ambiental) e **ISO 45001** (Seguridad y Salud Ocupacional) para validar sus sistemas de gestión.
+    """)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+def seccion_conclusion():
+    """Capítulo 8: Conclusión."""
+    st.header("8. Conclusión Estratégica")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.write("""
+    La Central de Ciclo Combinado Dock Sud representa una síntesis exitosa de evolución tecnológica y adaptación estratégica. Su rol en el Sistema Argentino de Interconexión (SADI) es crucial por las siguientes razones:
+    """)
+    st.markdown("""
+    - **Eficiencia Energética:** Al combinar los ciclos Brayton y Rankine, maximiza la generación eléctrica por unidad de combustible, reduciendo costos operativos y emisiones de CO₂.
+    - **Confiabilidad y Base de Carga:** Proporciona una fuente de energía firme y constante, esencial para dar estabilidad a una red que integra cada vez más fuentes renovables intermitentes.
+    - **Flexibilidad Operativa:** Aunque es una planta de base, sus unidades de gas pueden responder con relativa rapidez a las fluctuaciones de la demanda, aportando flexibilidad al despacho de CAMMESA.
+    - **Ubicación Estratégica:** Situada en el corazón del Gran Buenos Aires, el principal centro de consumo del país, minimiza las pérdidas por transporte de energía.
+    - **Activo Modernizado:** Las continuas inversiones aseguran que la planta opere con tecnología de punta en control, seguridad y gestión ambiental, garantizando su viabilidad a largo plazo.
+    """)
+    st.success("En definitiva, Dock Sud no es solo una central generadora, sino un activo sistémico que aporta eficiencia, seguridad y confiabilidad al mercado eléctrico argentino.")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def seccion_galeria():
+    """Capítulo 9: Galería."""
+    st.header("9. Galería")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<p class="card-title">Imágenes de la Planta y Logos</p>', unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.image("https://www.ypfluz.com/wp-content/uploads/2022/10/Dock-Sud-02-1.jpg", caption="Vista general de la Central Dock Sud")
+        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/YPF_Luz_logo.svg/1280px-YPF_Luz_logo.svg.png", caption="YPF Luz")
+    with col2:
+        st.image("https://www.ypfluz.com/wp-content/uploads/2022/10/Dock-Sud-01-1.jpg", caption="Turbinas y equipos principales")
+        st.image("https://www.melectrico.com.ar/wp-content/uploads/2023/11/logo-cammesa-blanco.png", caption="CAMMESA")
+    with col3:
+        st.image("https://www.centraldockdsud.com.ar/sites/default/files/styles/flexslider_full/public/central_0.jpg?itok=yqK4-EaU", caption="Vista nocturna del complejo")
+        st.info("[Logo Central Dock Sud S.A. - TODO: Encontrar URL válida]")
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# --- ROUTER Y NAVEGACIÓN ---
+CAPITULOS = {
+    "Carátula": seccion_caratula,
+    "Fundamentos Termoeléctricos": seccion_fundamentos,
+    "Historia de la Central": seccion_historia,
+    "Mercado Eléctrico Argentino": seccion_mea,
+    "Descripción Técnica del CC": seccion_descripcion_tecnica,
+    "Generadores Sincrónicos": seccion_generadores,
+    "Control y Mantenimiento": seccion_control_mantenimiento,
+    "Seguridad y Medio Ambiente": seccion_seguridad_ambiente,
+    "Conclusión": seccion_conclusion,
+    "Galería": seccion_galeria,
+}
+CAPITULOS_LISTA = list(CAPITULOS.keys())
+
+def mostrar_capitulo(slide_idx):
+    """Llama a la función del capítulo correspondiente."""
+    nombre_capitulo = CAPITULOS_LISTA[slide_idx]
+    funcion_capitulo = CAPITULOS[nombre_capitulo]
+    funcion_capitulo()
+
+def main():
+    """Función principal que renderiza la aplicación."""
+    local_css()
+
+    # --- SIDEBAR ---
+    st.sidebar.title("Índice de la Exposición")
+    st.sidebar.markdown("---")
+    
+    modo_presentacion = st.sidebar.toggle("Modo Presentación", value=False)
+    
+    # Sincronizar el estado de la diapositiva con el radio button
+    # Esto permite navegar tanto con los botones como con el sidebar
+    seleccion_sidebar = st.sidebar.radio(
+        "Seleccionar Capítulo:",
+        CAPITULOS_LISTA,
+        index=st.session_state.slide,
+        key=f"radio_{st.session_state.slide}" # Forzar rerender del radio
+    )
+    
+    if CAPITULOS_LISTA.index(seleccion_sidebar) != st.session_state.slide:
+        st.session_state.slide = CAPITULOS_LISTA.index(seleccion_sidebar)
+        st.rerun()
+
+    st.sidebar.markdown("---")
+    st.sidebar.info("Esta aplicación fue generada con IA como asistente de desarrollo y redacción técnica.")
+
+    # --- CONTENEDOR PRINCIPAL ---
+    main_container_class = "presentation-mode" if modo_presentacion else ""
+    with st.container():
+        st.markdown(f'<div class="{main_container_class}">', unsafe_allow_html=True)
+
+        # --- BOTONES DE NAVEGACIÓN Y PROGRESO ---
+        st.markdown('<div class="nav-buttons">', unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1.5, 7, 1.5])
+        
+        with col1:
+            if st.button("⬅️ Anterior", use_container_width=True, disabled=(st.session_state.slide == 0)):
+                st.session_state.slide -= 1
+                st.rerun()
+
+        with col3:
+            if st.button("Siguiente ➡️", use_container_width=True, disabled=(st.session_state.slide == len(CAPITULOS_LISTA) - 1)):
+                st.session_state.slide += 1
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.progress(st.session_state.slide / (len(CAPITULOS_LISTA) - 1), text=f"Capítulo {st.session_state.slide + 1} de {len(CAPITULOS_LISTA)}")
+
+        st.markdown("<hr style='margin-top: 10px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+        
+        # --- RENDERIZADO DEL CAPÍTULO ACTUAL ---
+        mostrar_capitulo(st.session_state.slide)
+
+        # --- CRÉDITOS FINALES ---
+        with st.expander("Créditos y Fuentes Principales", expanded=False):
+            st.markdown("""
+            - **Contenido Técnico:** Basado en el documento "Informe Técnico – Central De Ciclo Combinado Dock Sud (ypf Luz) (1).pdf" proporcionado.
+            - **YPF Luz:** [https://www.ypfluz.com/](https://www.ypfluz.com/)
+            - **CAMMESA:** [https://www.cammesa.com/](https://www.cammesa.com/)
+            - **Central Dock Sud S.A.:** [https://www.centraldockdsud.com.ar/](https://www.centraldockdsud.com.ar/)
+            - **Diagramas de Ciclos:** Wikimedia Commons
+            """)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+
+if __name__ == "__main__":
+    main()
