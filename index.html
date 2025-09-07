@@ -1,491 +1,688 @@
-# -*- coding: utf-8 -*-
-"""
-Presentación Web Interactiva: Central de Ciclo Combinado Dock Sud - YPF Luz
-Autor: Senior Frontend + UX Engineer (Asistente de IA)
-"""
-import streamlit as st
-import math
-
-# --- CONFIGURACIÓN DE LA PÁGINA ---
-st.set_page_config(
-    page_title="Central Dock Sud - YPF Luz",
-    page_icon="⚡",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# --- ESTADO DE SESIÓN ---
-if 'slide' not in st.session_state:
-    st.session_state.slide = 0
-
-# --- LISTA DE INTEGRANTES (Variable para facilitar la edición) ---
-INTEGRANTES = [
-    "Jesus Castellanos", "Lucas Espinola", "Tobias Copa",
-    "Joaquin Huaman", "Brian Alcon"
-]
-
-# --- CSS PERSONALIZADO ---
-def local_css():
-    """
-    Inyecta CSS para un tema oscuro, tarjetas y modo presentación.
-    """
-    css = """
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central Dock Sud - YPF Luz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Teko:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* --- TEMA OSCURO Y TIPOGRAFÍA --- */
+        :root {
+            --sky-400: #38bdf8;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+        }
         body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--slate-900);
             color: #EAEAEA;
         }
-        .stApp {
-            background-color: #0f172a; /* Azul oscuro principal */
+        .section-title {
+            font-family: 'Teko', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 1px;
+            color: #f8fafc;
         }
-        h1, h2, h3 {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            font-weight: 600;
+        .section-divider {
+            min-height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Efecto Parallax */
+            position: relative;
         }
-        p, li, .stMarkdown {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 16px;
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(2px);
         }
-        .stButton>button {
-            border-radius: 8px;
-            border: 1px solid #38bdf8; /* Borde azul claro */
-            background-color: transparent;
-            color: #38bdf8;
-            transition: all 0.2s ease-in-out;
+        .section-divider h1 {
+            position: relative;
+            z-index: 1;
         }
-        .stButton>button:hover {
-            background-color: #38bdf8;
-            color: #0f172a;
-        }
-        .stButton>button:disabled, .stButton>button:disabled:hover {
-             border: 1px solid #475569;
-             background-color: transparent;
-             color: #475569;
-        }
-
-        /* --- ESTILO DE TARJETAS --- */
         .card {
-            background-color: #1e293b; /* Azul un poco más claro */
+            background-color: var(--slate-800);
             border: 1px solid #334155;
             border-radius: 12px;
             padding: 25px;
-            margin: 10px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s ease-in-out;
+            margin: 15px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s, border-color 0.3s;
         }
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(56, 189, 248, 0.1);
+            border-color: var(--sky-400);
         }
         .card-title {
-            color: #38bdf8; /* Azul claro para títulos de tarjeta */
+            color: #7dd3fc;
             margin-bottom: 15px;
+            font-size: 1.25rem;
             font-weight: bold;
         }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--sky-400);
+            border-bottom-color: var(--sky-400);
+        }
+        
+        /* --- Estilos Modo Presentación --- */
+        .presentation-nav { transition: opacity 0.3s ease-in-out; }
+        body.presentation-mode main > section {
+            display: none; opacity: 0; transform: translateY(30px);
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+        }
+        body.presentation-mode main > section.active-slide {
+            display: flex; flex-direction: column; justify-content: center;
+            min-height: calc(100vh - 120px); opacity: 1; transform: translateY(0);
+        }
+        body.presentation-mode #main-header { opacity: 0; pointer-events: none; }
+        body.presentation-mode .section-divider { display: none; } /* Ocultar divisores en modo presentación */
 
-        /* --- MODO PRESENTACIÓN --- */
-        .presentation-mode [data-testid="stSidebar"] {
-            display: none;
-        }
-        .presentation-mode .main .block-container {
-            max-width: 90%;
-            padding-top: 1rem;
-        }
-        .presentation-mode .stProgress {
-            display: none;
-        }
-        .presentation-mode .nav-buttons {
-            display: none;
-        }
 
+        /* --- Animaciones y Componentes --- */
+        .fade-in-section { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .fade-in-section.is-visible { opacity: 1; transform: translateY(0); }
+        .timeline-item::before { content: ''; position: absolute; left: 0; top: 5px; width: 2px; height: 100%; background-color: #334155; }
+        .timeline-dot { position: absolute; left: -10px; top: 5px; height: 24px; width: 24px; background-color: var(--sky-400); border-radius: 50%; border: 4px solid var(--slate-800); }
+        .tab-btn.active { background-color: var(--sky-400); color: var(--slate-900); }
+        .tab-content { display: none; animation: fadeIn 0.5s; } 
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- Carátula Interactiva --- */
+        .cover-overlay { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.5s ease-in-out; display: flex; flex-direction: column; justify-content: center; align-items: center; background-size: cover; background-position: center; border-radius: 12px; }
+        .cover-overlay.active { opacity: 1; pointer-events: auto; }
+        .cover-overlay .overlay-backdrop { position: absolute; inset: 0; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); border-radius: 12px; }
+        .cover-overlay .overlay-content { position: relative; z-index: 10; text-align: center; }
+        .integrante-btn:hover { background-color: var(--sky-400); color: var(--slate-900); }
+
+        /* --- Simulador Ciclo Combinado --- */
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .spin { animation: spin 2s linear infinite; transform-origin: center; }
+        .flow-path { stroke-dasharray: 10; animation: dash 1s linear infinite; }
+        @keyframes dash { to { stroke-dashoffset: -20; } }
+        #sfc-light.active { animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes combustion {
+            0% { transform: scale(0.8); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.7; }
+        }
+        .combustion-effect { animation: combustion 0.2s infinite; transform-origin: center;}
     </style>
-    """
-    st.markdown(css, unsafe_allow_html=True)
+</head>
+<body class="overflow-x-hidden">
 
-# --- SECCIONES / CAPÍTULOS ---
+    <!-- Controles Flotantes y Navegación -->
+    <div class="fixed top-4 right-4 z-[60] flex space-x-2">
+        <button id="play-presentation-btn" class="p-3 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-full shadow-lg hover:bg-slate-700 transition" title="Modo Presentación">
+            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <svg id="stop-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden text-white"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+        </button>
+        <button id="fullscreen-btn" class="p-3 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-full shadow-lg hover:bg-slate-700 transition" title="Pantalla Completa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+    </div>
+    <div id="presentation-nav-prev" class="presentation-nav fixed left-4 top-1/2 -translate-y-1/2 z-[60] opacity-0 pointer-events-none">
+        <button class="p-4 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-full shadow-lg hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+    </div>
+    <div id="presentation-nav-next" class="presentation-nav fixed right-4 top-1/2 -translate-y-1/2 z-[60] opacity-0 pointer-events-none">
+        <button class="p-4 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-full shadow-lg hover:bg-slate-700 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+    </div>
 
-def seccion_caratula():
-    """Renderiza la portada de la presentación."""
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 4, 1])
-    with col1:
-        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/YPF_Luz_logo.svg/2560px-YPF_Luz_logo.svg.png", width=150)
-    with col2:
-        st.title("Central de Ciclo Combinado Dock Sud")
-        st.subheader("Análisis Técnico y Operativo en el Mercado Eléctrico Argentino")
-    with col3:
-        st.image("https://www.cammesa.com/wp-content/uploads/2023/10/logo-cammesa-blanco.png", width=180)
+    <!-- Header Fijo -->
+    <header id="main-header" class="bg-slate-900/80 backdrop-blur-sm border-b border-slate-700 sticky top-0 z-50 transition-opacity duration-300">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-sky-400" style="font-family: 'Teko', sans-serif;">Central Dock Sud</h1>
+            <div class="hidden md:flex flex-wrap items-center justify-center space-x-4 lg:space-x-6">
+                 <a href="#caratula" class="nav-link font-semibold pb-1">Carátula</a>
+                 <a href="#fundamentos" class="nav-link font-semibold pb-1">Fundamentos</a>
+                 <a href="#historia" class="nav-link font-semibold pb-1">Historia</a>
+                 <a href="#mea" class="nav-link font-semibold pb-1">MEA</a>
+                 <a href="#tecnica" class="nav-link font-semibold pb-1">Simulador</a>
+                 <a href="#generadores" class="nav-link font-semibold pb-1">Generadores</a>
+                 <a href="#control" class="nav-link font-semibold pb-1">Control</a>
+                 <a href="#seguridad" class="nav-link font-semibold pb-1">Seguridad</a>
+                 <a href="#conclusion" class="nav-link font-semibold pb-1">Conclusión</a>
+                 <a href="#galeria" class="nav-link font-semibold pb-1">Galería</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-400">
+                <div id="open-icon" class="w-6 h-0.5 bg-white mb-1.5 transition-transform duration-300"></div>
+                <div id="close-icon-part1" class="w-6 h-0.5 bg-white transition-transform duration-300"></div>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4"></div>
+    </header>
 
-    st.markdown("---")
+    <main class="container mx-auto px-6 py-8">
+        <!-- SECCIÓN 0: CARÁTULA INTERACTIVA -->
+        <section id="caratula">
+            <div id="caratula-card" class="card text-center fade-in-section relative overflow-hidden min-h-[70vh]">
+                <!-- Vista por Defecto -->
+                <div id="cover-default" class="cover-overlay active" style="background-image: url('https://www.ypfluz.com/wp-content/uploads/2022/10/Dock-Sud-02-1.jpg');">
+                    <div class="overlay-backdrop"></div>
+                    <div class="overlay-content p-4">
+                        <div class="flex justify-center items-center space-x-8 mb-4">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/YPF_Luz_logo.svg/2560px-YPF_Luz_logo.svg.png" class="h-16" alt="Logo YPF Luz">
+                            <img src="https://www.cammesa.com/wp-content/uploads/2023/10/logo-cammesa-blanco.png" class="h-12" alt="Logo CAMMESA">
+                        </div>
+                        <h1 class="section-title justify-center text-4xl md:text-5xl border-none">Central de Ciclo Combinado Dock Sud</h1>
+                        <p class="text-xl text-slate-300 mt-4">Análisis Técnico y Operativo en el Mercado Eléctrico Argentino</p>
+                        <hr class="my-6 border-slate-700">
+                        <h3 class="text-2xl text-sky-400 font-semibold mb-4">Integrantes</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-4">
+                            <div data-member="jesus" class="integrante-btn bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Jesus Castellanos</div>
+                            <div data-member="guillermo" class="integrante-btn bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Guillermo Paulosky</div>
+                            <div data-member="joaquin" class="integrante-btn bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Joaquin Huaman</div>
+                            <div data-member="lucho" class="integrante-btn bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Lucho</div>
+                            <div data-member="nicolas" class="integrante-btn bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Nicolas Arguello</div>
+                            <div data-member="cordero" class="integrante-btn bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Cordero Alderete</div>
+                        </div>
+                        <button id="show-group" class="integrante-btn bg-sky-600 hover:bg-sky-500 p-3 mt-4 rounded-lg font-bold w-full md:w-auto">Equipo Completo: PP YPF DOCK SUD</button>
+                    </div>
+                </div>
+                 <!-- Overlays para cada integrante (con placeholders) -->
+                <div id="cover-jesus" class="cover-overlay" style="background-image: url('https://placehold.co/600x600/1e293b/7dd3fc?text=Jesus');"><div class="overlay-backdrop"></div><div class="overlay-content"><h2 class="text-6xl font-bold text-white" style="font-family: 'Teko', sans-serif;">Jesus Castellanos</h2></div></div>
+                <div id="cover-guillermo" class="cover-overlay" style="background-image: url('https://placehold.co/600x600/1e293b/7dd3fc?text=Guillermo');"><div class="overlay-backdrop"></div><div class="overlay-content"><h2 class="text-6xl font-bold text-white" style="font-family: 'Teko', sans-serif;">Guillermo Paulosky</h2></div></div>
+                <div id="cover-joaquin" class="cover-overlay" style="background-image: url('https://placehold.co/600x600/1e293b/7dd3fc?text=Joaquin');"><div class="overlay-backdrop"></div><div class="overlay-content"><h2 class="text-6xl font-bold text-white" style="font-family: 'Teko', sans-serif;">Joaquin Huaman</h2></div></div>
+                <div id="cover-lucho" class="cover-overlay" style="background-image: url('https://placehold.co/600x600/1e293b/7dd3fc?text=Lucho');"><div class="overlay-backdrop"></div><div class="overlay-content"><h2 class="text-6xl font-bold text-white" style="font-family: 'Teko', sans-serif;">Lucho</h2></div></div>
+                <div id="cover-nicolas" class="cover-overlay" style="background-image: url('https://placehold.co/600x600/1e293b/7dd3fc?text=Nicolas');"><div class="overlay-backdrop"></div><div class="overlay-content"><h2 class="text-6xl font-bold text-white" style="font-family: 'Teko', sans-serif;">Nicolas Arguello</h2></div></div>
+                <div id="cover-cordero" class="cover-overlay" style="background-image: url('https://placehold.co/600x600/1e293b/7dd3fc?text=Cordero');"><div class="overlay-backdrop"></div><div class="overlay-content"><h2 class="text-6xl font-bold text-white" style="font-family: 'Teko', sans-serif;">Cordero Alderete</h2></div></div>
+                <!-- Overlay para el grupo -->
+                <div id="cover-group" class="cover-overlay" style="background-image: url('https://placehold.co/1200x600/1e293b/7dd3fc?text=Equipo+Completo');"><div class="overlay-backdrop"></div><div class="overlay-content"><h2 class="text-6xl font-bold text-white" style="font-family: 'Teko', sans-serif;">PP YPF DOCK SUD</h2></div></div>
+            </div>
+        </section>
 
-    st.subheader("Integrantes")
-    cols = st.columns(len(INTEGRANTES))
-    for i, nombre in enumerate(INTEGRANTES):
-        with cols[i]:
-            st.info(nombre)
-    st.markdown('</div>', unsafe_allow_html=True)
+        <!-- DIVIDER 1 -->
+        <section class="section-divider fade-in-section" style="background-image: url('https://www.ypfluz.com/wp-content/uploads/2022/10/Dock-Sud-01-1.jpg');">
+            <h1 class="section-title border-none text-center">Fundamentos Termoeléctricos</h1>
+        </section>
 
-def seccion_fundamentos():
-    """Capítulo 1: Fundamentos de la Generación Termoeléctrica."""
-    st.header("1. Fundamentos de la Generación Termoeléctrica")
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<p class="card-title">Conceptos Clave</p>', unsafe_allow_html=True)
+        <!-- SECCIÓN 1: FUNDAMENTOS -->
+        <section id="fundamentos">
+             <div class="card fade-in-section">
+                <p class="card-title">Conceptos Clave de Ciclos de Potencia</p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">Ciclo Brayton (Turbina de Gas - TG)</h3>
+                        <p class="mb-4">Base de las turbinas de gas. Convierte energía del combustible en trabajo mediante compresión, combustión y expansión de aire.</p>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Brayton_cycle.svg/400px-Brayton_cycle.svg.png" alt="Diagrama Brayton" class="mx-auto bg-white rounded p-2 clickable-image" data-title="Ciclo Brayton">
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">Ciclo Rankine (Turbina de Vapor - TV)</h3>
+                        <p class="mb-4">Utiliza un cambio de fase (agua-vapor) para convertir energía térmica en trabajo. El vapor a alta presión mueve una turbina.</p>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Rankine_cycle_T-S_diagram.svg/400px-Rankine_cycle_T-S_diagram.svg.png" alt="Diagrama Rankine" class="mx-auto bg-white rounded p-2 clickable-image" data-title="Ciclo Rankine">
+                    </div>
+                </div>
+                <hr class="my-6 border-slate-700">
+                <h3 class="text-2xl font-bold mb-2 text-sky-300">Ciclo Combinado (Brayton + Rankine)</h3>
+                <p>La integración sinérgica de ambos. Los gases de escape calientes (~650°C) de la turbina de gas generan vapor en una Caldera de Recuperación (HRSG). Este vapor alimenta una turbina de vapor, produciendo electricidad adicional sin quemar más combustible y elevando la eficiencia total por encima del 58%.</p>
+             </div>
+        </section>
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Ciclo Brayton (Turbina de Gas - TG)")
-        st.write("""
-        Es un ciclo termodinámico de gas que describe el funcionamiento de las turbinas de gas.
-        - **Compresión:** El aire es comprimido adiabáticamente.
-        - **Combustión:** Se añade combustible y se quema a presión constante, aumentando la temperatura y entalpía.
-        - **Expansión:** Los gases calientes se expanden en la turbina, generando trabajo mecánico.
-        - **Escape:** Los gases se liberan a la atmósfera.
-        Su principal ventaja es la rápida respuesta y alta potencia específica.
-        """)
-        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Brayton_cycle.svg/400px-Brayton_cycle.svg.png", caption="Diagrama P-V y T-S del Ciclo Brayton ideal.")
+        <!-- DIVIDER 2 -->
+        <section class="section-divider fade-in-section" style="background-image: url('https://dockdelplata.com.ar/wp-content/uploads/2019/12/Dock-del-Plata-9.jpg');">
+            <h1 class="section-title border-none text-center">Historia y Evolución</h1>
+        </section>
 
-    with col2:
-        st.subheader("Ciclo Rankine (Turbina de Vapor - TV)")
-        st.write("""
-        Ciclo de potencia que utiliza un fluido de trabajo en dos fases (líquido-vapor), típicamente agua.
-        - **Bombeo:** El agua líquida es bombeada a alta presión.
-        - **Calentamiento:** El agua se calienta en una caldera hasta convertirse en vapor sobrecalentado.
-        - **Expansión:** El vapor se expande en una turbina, produciendo trabajo.
-        - **Condensación:** El vapor se enfría y condensa, volviendo a fase líquida.
-        Se caracteriza por su alta eficiencia térmica, pero con mayor inercia.
-        """)
-        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Rankine_cycle_T-S_diagram.svg/400px-Rankine_cycle_T-S_diagram.svg.png", caption="Diagrama T-S del Ciclo Rankine.")
-
-    st.markdown("---")
-    st.subheader("Ciclo Combinado (Brayton + Rankine)")
-    st.write("""
-    El ciclo combinado acopla un ciclo Brayton con un ciclo Rankine para maximizar la eficiencia. Los gases de escape calientes de la turbina de gas (aprox. 600-650°C), que de otro modo se desperdiciarían, se utilizan para generar vapor en una **Caldera de Recuperación de Calor (HRSG)**. Este vapor alimenta una turbina de vapor, generando electricidad adicional sin consumir más combustible.
-    """)
-
-    st.latex(r'\eta_{cc} = \eta_{Brayton} + (1 - \eta_{Brayton})\eta_{Rankine}')
-
-    st.info("La eficiencia de un ciclo combinado moderno supera el 60%, muy por encima del 35-42% de un ciclo Brayton simple o un ciclo Rankine convencional.")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-def seccion_historia():
-    """Capítulo 2: Historia de la Central Dock Sud."""
-    st.header("2. Historia de la Central Dock Sud")
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        st.markdown('<p class="card-title">Línea de Tiempo</p>', unsafe_allow_html=True)
-        st.markdown("""
-        - **1907:** La Compañía Alemana Transatlántica de Electricidad (CATE) inaugura la "Usina CATE" en Dock Sud, la más grande de Sudamérica en su momento.
-        - **1944:** El Estado Nacional interviene la CATE.
-        - **1960:** La central pasa a formar parte de **Servicios Eléctricos del Gran Buenos Aires (SEGBA)**, unificando la generación y distribución.
-        - **1992:** En el marco de la privatización del sector, SEGBA se divide. La central es adquirida por un consorcio y se constituye **Central Dock Sud S.A. (CDSSA)**.
-        - **Década 2000-2010:** Modernización y expansión con la instalación de nuevas unidades de ciclo combinado para aumentar la eficiencia y capacidad.
-        - **2019:** **YPF LUZ** (subsidiaria de YPF S.A.) y otras empresas adquieren una participación mayoritaria, consolidando la central como un activo estratégico en el sistema eléctrico nacional.
-        """)
-    with col2:
-        st.image("https://dockdelplata.com.ar/wp-content/uploads/2019/12/Dock-del-Plata-9.jpg", caption="Vista aérea del complejo Dock Sud. [Imagen referencial]")
-
-    st.success("La central ha sido un pilar en la historia energética argentina, evolucionando desde la tecnología de principios del siglo XX hasta los ciclos combinados de alta eficiencia actuales.")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
-def seccion_mea():
-    """Capítulo 3: Mercado Eléctrico Argentino."""
-    st.header("3. Mercado Eléctrico Argentino (MEA)")
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<p class="card-title">Actores y Funcionamiento</p>', unsafe_allow_html=True)
-
-    st.write("""
-    El MEA es un mercado mayorista donde los generadores de energía (como Dock Sud) venden su producción y los grandes usuarios y distribuidores la compran. Todo el sistema está coordinado para garantizar la seguridad y el abastecimiento al menor costo posible.
-    """)
-
-    st.markdown("""
-    **Flujo Simplificado de Energía:**
-    ```
-    GENERACIÓN ---> TRANSPORTE ---> DISTRIBUCIÓN ---> USUARIOS
-    (Centrales)    (Transener)      (Edenor/Edesur)   (Hogares, Industrias)
-    ```
-    """)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Rol de CAMMESA")
-        st.write("""
-        La **Compañía Administradora del Mercado Mayorista Eléctrico S.A. (CAMMESA)** es el organismo encargado del Despacho Nacional de Cargas. Sus funciones principales son:
-        - **Planificación:** Coordinar la operación de generadores, transporte y demanda en tiempo real.
-        - **Despacho Técnico:** Decidir qué centrales se encienden y apagan para satisfacer la demanda al mínimo costo operativo, respetando las restricciones técnicas del sistema.
-        - **Administración Comercial:** Gestionar las transacciones económicas entre los actores del mercado.
-        - **Garantizar la Calidad:** Supervisar que la frecuencia (50 Hz) y la tensión se mantengan dentro de los rangos operativos seguros.
-        """)
-    with col2:
-        st.image("https://www.melectrico.com.ar/wp-content/uploads/2023/11/logo-cammesa-blanco.png", caption="Logo de CAMMESA", use_column_width=True)
-        st.info("""
-        **¿Cómo se despacha?**
-        CAMMESA ordena el arranque de las centrales en orden de mérito, comenzando por las de menor costo variable de producción (hidroeléctricas, nucleares, renovables) y escalando hacia las más costosas (ciclos combinados, turbinas de gas simples) hasta cubrir la demanda total.
-        """)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-def seccion_descripcion_tecnica():
-    """Capítulo 4: Descripción Técnica del Ciclo Combinado."""
-    st.header("4. Descripción Técnica del Ciclo Combinado en Dock Sud")
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<p class="card-title">Componentes Principales</p>', unsafe_allow_html=True)
-    st.markdown("""
-    **Diagrama de Bloques Simplificado:**
-    ```
-    Aire -> [Turbina de Gas (TG)] --(Gases Calientes)--> [Caldera (HRSG)] --(Vapor)--> [Turbina de Vapor (TV)] -> [Generador]
-           ^                     |                                                  |                        |
-           |                     +------> [Generador]                               +---> [Condensador] <----+ Agua
-    Combustible (Gas Natural)                                                                |
-                                                                                           |
-                                                                                           +--> [Bomba] --------+
-    ```
-    """)
-    col1, col2 = st.columns([3, 2])
-    with col1:
-        st.write("""
-        - **Turbina de Gas (TG):** Modelo **Alstom GT26**. Utiliza gas natural como combustible. El aire es comprimido, mezclado con gas, quemado y expandido para mover el generador. Los gases de escape salen a alta temperatura.
-        - **Caldera de Recuperación de Calor (HRSG):** Utiliza el calor de los gases de escape de la TG para convertir agua en vapor sobrecalentado a través de varios bancos de tubos (economizador, evaporador, sobrecalentador).
-        - **Turbina de Vapor (TV):** Modelo **Alstom DKZ2-1N41**. El vapor a alta presión y temperatura proveniente del HRSG se expande, haciendo girar un segundo generador.
-        - **Condensador:** Enfría el vapor de salida de la TV para convertirlo nuevamente en agua líquida, que es bombeada de regreso al HRSG, cerrando el ciclo. Utiliza agua del Río de la Plata como medio refrigerante.
-        """)
-    with col2:
-        st.markdown('<p class="card-title" style="text-align:center;">Datos de Placa (Aproximados)</p>', unsafe_allow_html=True)
-        st.table({
-            "Componente": ["Turbina de Gas (TG)", "Turbina de Vapor (TV)", "Potencia Total CC"],
-            "Potencia Nominal": ["~285 MW", "~291 MW", "~870 MW"],
-            "Velocidad": ["3000 RPM", "3000 RPM", "-"],
-            "Rel. Compresión (TG)": ["30:1", "-", "-"]
-        })
-        st.latex(r'\text{Balance Térmico Simple:} \quad Q_{in} = W_{TG} + W_{TV} + Q_{out}')
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
-def seccion_generadores():
-    """Capítulo 5: Generadores Sincrónicos."""
-    st.header("5. Generadores Sincrónicos (Alstom)")
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<p class="card-title">Generación Eléctrica</p>', unsafe_allow_html=True)
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Características Constructivas")
-        st.write("""
-        Los generadores acoplados a las turbinas son máquinas sincrónicas trifásicas diseñadas para alta potencia y operación continua.
-        - **Potencia Aparente (Sn):** ~390 MVA
-        - **Tensión Nominal:** 19 kV
-        - **Factor de Potencia:** 0.85 (típicamente)
-        - **Frecuencia:** 50 Hz
-        - **Velocidad Sincrónica:** 3000 RPM
-        """)
-        st.subheader("Sistema de Excitación Estática")
-        st.write("""
-        La excitación proporciona la corriente continua (CC) al campo del rotor para crear el flujo magnético. El sistema es estático, alimentado desde un transformador conectado a los bornes del generador.
-        - **Control:** Un **Regulador Automático de Tensión (AVR)** ajusta la corriente de excitación para mantener la tensión de salida del generador constante ante cambios de carga.
-        """)
-
-    with col2:
-        st.subheader("Refrigeración por Hidrógeno (H₂)")
-        st.write("""
-        Debido a las altas pérdidas por calor, los generadores de gran potencia utilizan hidrógeno como refrigerante por su alta conductividad térmica y baja densidad.
-        """)
-        st.info("""
-        **Flujo de H₂ (Simplificado):**
-        1.  El H₂ presurizado circula por conductos en el estator y rotor.
-        2.  Absorbe el calor de los devanados.
-        3.  El H₂ caliente pasa por **intercambiadores de calor** (enfriadores de H₂), donde cede el calor a un circuito secundario de agua.
-        4.  El H₂ frío es recirculado por ventiladores.
-        """)
-        st.warning("**Riesgos del Hidrógeno:** Es altamente inflamable. Se requieren sistemas de sellado de aceite en los ejes del rotor y detectores de fugas para una operación segura.")
-
-    st.subheader("Arranque con Convertidor Estático de Frecuencia (SFC)")
-    st.write("Para el arranque, la turbina de gas necesita ser llevada a una velocidad de auto-sostenimiento. El generador, actuando como motor, es alimentado por un **SFC** que le suministra energía a frecuencia y tensión variables, permitiendo un arranque controlado y suave.")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
-def seccion_control_mantenimiento():
-    """Capítulo 6: Sistemas de Control y Mantenimiento."""
-    st.header("6. Sistemas de Control y Mantenimiento")
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<p class="card-title">Operación y Confiabilidad</p>', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Sistema de Control Distribuido (DCS)")
-        st.write("""
-        Toda la planta es monitoreada y operada desde una sala de control central a través de un **DCS**.
-        - **Arquitectura:** Red de controladores distribuidos por la planta, conectados a una red de alta velocidad.
-        - **Funciones:** Control secuencial (arranques/paradas), control regulatorio (temperatura, presión, nivel), sistemas de protección y alarmas.
-        - **Interfaz:** Los operadores interactúan con el proceso a través de pantallas **SCADA** (Supervisory Control And Data Acquisition) que muestran diagramas mímicos, tendencias y alarmas en tiempo real.
-        """)
-        st.subheader("Sistema de Identificación KKS")
-        st.write("""
-        **Kraftwerk-Kennzeichen-System** es un sistema de codificación alfanumérico estandarizado para identificar de forma unívoca cada componente, sistema y equipo en la central. Es fundamental para la operación, el mantenimiento y la documentación.
-        """)
-    with col2:
-        st.subheader("Estrategias de Mantenimiento")
-        st.write("""
-        Se aplican múltiples estrategias para maximizar la disponibilidad y confiabilidad de la planta.
-        - **Mantenimiento Preventivo:** Inspecciones y reemplazos programados basados en horas de operación o tiempo calendario.
-        - **Mantenimiento Predictivo:** Utiliza técnicas de monitoreo de condición (análisis de vibraciones, termografía, análisis de aceites) para predecir fallas antes de que ocurran.
-        - **Análisis de Causa Raíz (ACR):** Metodología para investigar fallas, identificar el origen del problema y evitar su recurrencia.
-        - **Planificación Operativa (PO):** Coordinación de los trabajos de mantenimiento con las necesidades del despacho de CAMMESA.
-        """)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-def seccion_seguridad_ambiente():
-    """Capítulo 7: Seguridad y Medio Ambiente."""
-    st.header("7. Seguridad y Medio Ambiente")
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<p class="card-title">Pilares de la Operación</p>', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Políticas de Seguridad")
-        st.write("""
-        La seguridad es la máxima prioridad. Se implementan políticas rigurosas para proteger al personal, los equipos y la comunidad.
-        - **Política "Stop Work Authority":** Otorga a CUALQUIER empleado la autoridad y obligación de detener un trabajo si considera que las condiciones son inseguras, sin temor a represalias.
-        - **Análisis de Trabajo Seguro (ATS):** Procedimiento obligatorio antes de iniciar cualquier tarea no rutinaria para identificar y mitigar riesgos.
-        - **LOTO (Lock-Out / Tag-Out):** Sistema de bloqueo y etiquetado para asegurar que los equipos estén desenergizados antes de intervenir.
-        """)
-    with col2:
-        st.subheader("Riesgos Específicos y Mitigación")
-        st.table({
-            "Riesgo": ["Gas Natural", "Hidrógeno", "Alta Tensión", "Químicos"],
-            "Mitigación": ["Detectores de gas, ventilación, áreas clasificadas", "Detectores, sellos de aceite, purga con CO₂", "Procedimientos de bloqueo, EPP dieléctrico", "Hojas de seguridad (MSDS), EPP específico"]
-        })
-
-    st.subheader("Gestión Ambiental y Certificaciones")
-    st.write("""
-    La central opera bajo estrictas normativas ambientales para minimizar su impacto.
-    - **Monitoreo de Emisiones:** Control continuo de Óxidos de Nitrógeno (NOx) para cumplir con los límites legales.
-    - **Gestión de Efluentes:** Tratamiento del agua utilizada antes de su devolución al río.
-    - **Certificaciones (Placeholder):** Generalmente, estas plantas buscan certificaciones como **ISO 14001** (Gestión Ambiental) e **ISO 45001** (Seguridad y Salud Ocupacional) para validar sus sistemas de gestión.
-    """)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
-def seccion_conclusion():
-    """Capítulo 8: Conclusión."""
-    st.header("8. Conclusión Estratégica")
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.write("""
-    La Central de Ciclo Combinado Dock Sud representa una síntesis exitosa de evolución tecnológica y adaptación estratégica. Su rol en el Sistema Argentino de Interconexión (SADI) es crucial por las siguientes razones:
-    """)
-    st.markdown("""
-    - **Eficiencia Energética:** Al combinar los ciclos Brayton y Rankine, maximiza la generación eléctrica por unidad de combustible, reduciendo costos operativos y emisiones de CO₂.
-    - **Confiabilidad y Base de Carga:** Proporciona una fuente de energía firme y constante, esencial para dar estabilidad a una red que integra cada vez más fuentes renovables intermitentes.
-    - **Flexibilidad Operativa:** Aunque es una planta de base, sus unidades de gas pueden responder con relativa rapidez a las fluctuaciones de la demanda, aportando flexibilidad al despacho de CAMMESA.
-    - **Ubicación Estratégica:** Situada en el corazón del Gran Buenos Aires, el principal centro de consumo del país, minimiza las pérdidas por transporte de energía.
-    - **Activo Modernizado:** Las continuas inversiones aseguran que la planta opere con tecnología de punta en control, seguridad y gestión ambiental, garantizando su viabilidad a largo plazo.
-    """)
-    st.success("En definitiva, Dock Sud no es solo una central generadora, sino un activo sistémico que aporta eficiencia, seguridad y confiabilidad al mercado eléctrico argentino.")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-def seccion_galeria():
-    """Capítulo 9: Galería."""
-    st.header("9. Galería")
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<p class="card-title">Imágenes de la Planta y Logos</p>', unsafe_allow_html=True)
-
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.image("https://www.ypfluz.com/wp-content/uploads/2022/10/Dock-Sud-02-1.jpg", caption="Vista general de la Central Dock Sud")
-        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/YPF_Luz_logo.svg/1280px-YPF_Luz_logo.svg.png", caption="YPF Luz")
-    with col2:
-        st.image("https://www.ypfluz.com/wp-content/uploads/2022/10/Dock-Sud-01-1.jpg", caption="Turbinas y equipos principales")
-        st.image("https://www.melectrico.com.ar/wp-content/uploads/2023/11/logo-cammesa-blanco.png", caption="CAMMESA")
-    with col3:
-        st.image("https://www.centraldockdsud.com.ar/sites/default/files/styles/flexslider_full/public/central_0.jpg?itok=yqK4-EaU", caption="Vista nocturna del complejo")
-        st.info("[Logo Central Dock Sud S.A. - TODO: Encontrar URL válida]")
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# --- ROUTER Y NAVEGACIÓN ---
-CAPITULOS = {
-    "Carátula": seccion_caratula,
-    "Fundamentos Termoeléctricos": seccion_fundamentos,
-    "Historia de la Central": seccion_historia,
-    "Mercado Eléctrico Argentino": seccion_mea,
-    "Descripción Técnica del CC": seccion_descripcion_tecnica,
-    "Generadores Sincrónicos": seccion_generadores,
-    "Control y Mantenimiento": seccion_control_mantenimiento,
-    "Seguridad y Medio Ambiente": seccion_seguridad_ambiente,
-    "Conclusión": seccion_conclusion,
-    "Galería": seccion_galeria,
-}
-CAPITULOS_LISTA = list(CAPITULOS.keys())
-
-def mostrar_capitulo(slide_idx):
-    """Llama a la función del capítulo correspondiente."""
-    nombre_capitulo = CAPITULOS_LISTA[slide_idx]
-    funcion_capitulo = CAPITULOS[nombre_capitulo]
-    funcion_capitulo()
-
-def main():
-    """Función principal que renderiza la aplicación."""
-    local_css()
-
-    # --- SIDEBAR ---
-    st.sidebar.title("Índice de la Exposición")
-    st.sidebar.markdown("---")
-    
-    modo_presentacion = st.sidebar.toggle("Modo Presentación", value=False)
-    
-    # Sincronizar el estado de la diapositiva con el radio button
-    # Esto permite navegar tanto con los botones como con el sidebar
-    seleccion_sidebar = st.sidebar.radio(
-        "Seleccionar Capítulo:",
-        CAPITULOS_LISTA,
-        index=st.session_state.slide,
-        key=f"radio_{st.session_state.slide}" # Forzar rerender del radio
-    )
-    
-    if CAPITULOS_LISTA.index(seleccion_sidebar) != st.session_state.slide:
-        st.session_state.slide = CAPITULOS_LISTA.index(seleccion_sidebar)
-        st.rerun()
-
-    st.sidebar.markdown("---")
-    st.sidebar.info("Esta aplicación fue generada con IA como asistente de desarrollo y redacción técnica.")
-
-    # --- CONTENEDOR PRINCIPAL ---
-    main_container_class = "presentation-mode" if modo_presentacion else ""
-    with st.container():
-        st.markdown(f'<div class="{main_container_class}">', unsafe_allow_html=True)
-
-        # --- BOTONES DE NAVEGACIÓN Y PROGRESO ---
-        st.markdown('<div class="nav-buttons">', unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([1.5, 7, 1.5])
+        <!-- SECCIÓN 2: HISTORIA INTERACTIVA -->
+        <section id="historia">
+            <div class="card fade-in-section">
+                <p class="card-title">Una Evolución Centenaria</p>
+                <div class="relative">
+                    <div class="timeline-item fade-in-section"><div class="timeline-dot"></div><h4 class="font-bold text-sky-400 text-xl">1907 - Fundación</h4><p class="text-slate-300">Inaugurada por la CATE para abastecer la creciente demanda de Buenos Aires.</p></div>
+                    <div class="timeline-item fade-in-section"><div class="timeline-dot"></div><h4 class="font-bold text-sky-400 text-xl">1960 - Nacionalización</h4><p class="text-slate-300">Pasa a formar parte de Servicios Eléctricos del Gran Buenos Aires (SEGBA).</p></div>
+                    <div class="timeline-item fade-in-section"><div class="timeline-dot"></div><h4 class="font-bold text-sky-400 text-xl">1992 - Privatización</h4><p class="text-slate-300">Se constituye Central Dock Sud S.A. en la reforma del sector eléctrico.</p></div>
+                    <div class="timeline-item fade-in-section"><div class="timeline-dot"></div><h4 class="font-bold text-sky-400 text-xl">2000s - Modernización a Ciclo Combinado</h4><p class="text-slate-300">Conversión a ciclo combinado, aumentando drásticamente la eficiencia.</p></div>
+                    <div class="timeline-item fade-in-section"><div class="timeline-dot"></div><h4 class="font-bold text-sky-400 text-xl">2019 - YPF LUZ</h4><p class="text-slate-300">YPF LUZ adquiere la participación mayoritaria, consolidándola como activo estratégico.</p></div>
+                </div>
+            </div>
+        </section>
         
-        with col1:
-            if st.button("⬅️ Anterior", use_container_width=True, disabled=(st.session_state.slide == 0)):
-                st.session_state.slide -= 1
-                st.rerun()
+        <!-- DIVIDER 3 -->
+        <section class="section-divider fade-in-section" style="background-image: url('https://www.centraldockdsud.com.ar/sites/default/files/styles/flexslider_full/public/central_0.jpg?itok=yqK4-EaU');">
+            <h1 class="section-title border-none text-center">Simulador Interactivo del Ciclo</h1>
+        </section>
 
-        with col3:
-            if st.button("Siguiente ➡️", use_container_width=True, disabled=(st.session_state.slide == len(CAPITULOS_LISTA) - 1)):
-                st.session_state.slide += 1
-                st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        <!-- SECCIÓN TÉCNICA INTERACTIVA -->
+        <section id="tecnica">
+            <div class="card fade-in-section">
+                <p class="card-title text-center">Simulador de Operación del Ciclo Combinado</p>
+                <!-- Tabs para el simulador -->
+                <div class="flex border-b border-slate-700 mb-4 justify-center" id="simulator-tabs">
+                    <button class="tab-btn active font-bold py-2 px-4 rounded-t-lg" data-target="tab-sim-bloques">Diagrama de Bloques</button>
+                    <button class="tab-btn font-bold py-2 px-4 rounded-t-lg" data-target="tab-sim-2d">Vista 2D Simplificada</button>
+                </div>
 
-        st.progress(st.session_state.slide / (len(CAPITULOS_LISTA) - 1), text=f"Capítulo {st.session_state.slide + 1} de {len(CAPITULOS_LISTA)}")
+                <div class="grid xl:grid-cols-5 gap-6">
+                    <div class="xl:col-span-4">
+                        <!-- Contenedor para las vistas del simulador -->
+                        <div id="simulator-views">
+                            <div id="tab-sim-bloques" class="tab-content active">
+                                <svg id="cc-diagram" viewBox="0 0 400 250" class="bg-slate-900 rounded-lg w-full">
+                                    <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fff"/></marker><path id="flame" d="M11 20s-2.14-3.84-2.14-6.16c0-2.92 2.38-4.84 4.14-4.84 1.76 0 4.14 1.92 4.14 4.84C17.14 16.16 15 20 15 20z" fill="orange"/></defs>
+                                    <rect x="20" y="80" width="80" height="40" fill="#334155" stroke="#7dd3fc" /><text x="35" y="105" fill="white" font-size="10">TG</text><g id="tg-rotor" transform="translate(60, 100)"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="white" stroke-width="1"/></g>
+                                    <rect x="150" y="50" width="30" height="100" fill="#334155" stroke="#7dd3fc" /><text x="155" y="105" fill="white" font-size="10">HRSG</text>
+                                    <rect x="230" y="80" width="80" height="40" fill="#334155" stroke="#7dd3fc" /><text x="245" y="105" fill="white" font-size="10">TV</text><g id="tv-rotor" transform="translate(270, 100)"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="white" stroke-width="1"/></g>
+                                    <rect x="230" y="170" width="80" height="30" fill="#334155" stroke="#7dd3fc" /><text x="240" y="190" fill="white" font-size="10">Condensador</text>
+                                    <rect x="340" y="80" width="40" height="40" fill="#334155" stroke="#7dd3fc" /><text x="345" y="105" fill="white" font-size="10">GEN</text>
+                                    <rect x="340" y="150" width="40" height="30" fill="#334155" stroke="#a5b4fc" /><text x="350" y="170" fill="white" font-size="10">SFC</text><circle id="sfc-light" cx="360" cy="135" r="3" fill="red" opacity="0.3"/>
+                                    <path d="M 100 100 H 150" stroke="orange" stroke-width="2" marker-end="url(#arrow)" id="gas-flow" style="display:none;"/><path d="M 180 80 H 230" stroke="cyan" stroke-width="2" marker-end="url(#arrow)" id="steam-flow" class="flow-path" style="display:none;"/><path d="M 270 120 V 170" stroke="lightblue" stroke-width="2" marker-end="url(#arrow)" id="exhaust-flow" class="flow-path" style="display:none;"/><path d="M 230 185 H 180 V 120" stroke="blue" stroke-width="2" marker-end="url(#arrow)" id="water-flow" class="flow-path" style="display:none;"/><path d="M 340 140 V 120" stroke="#a5b4fc" stroke-width="2" marker-end="url(#arrow)" id="sfc-flow" style="display:none;"/>
+                                    <use href="#flame" x="43" y="55" id="combustion-flame" style="display:none;" />
+                                </svg>
+                            </div>
+                            <div id="tab-sim-2d" class="tab-content">
+                                <svg id="turbine-2d" viewBox="0 0 600 350" class="bg-slate-900 rounded-lg w-full">
+                                    <!-- Eje principal -->
+                                    <g id="main-shaft" transform="translate(0 150)">
+                                        <rect x="40" y="-7.5" width="420" height="15" fill="#94a3b8"/>
+                                        <!-- Álabes TG -->
+                                        <g id="tg-blades-2d" transform="translate(70 0)" class="spin"><path d="M0,-25 L5,-20 -5,-20 Z M0,25 L5,20 -5,20 Z" fill="#7dd3fc"/></g>
+                                        <!-- Álabes GEN -->
+                                        <g id="g-blades-2d" transform="translate(200 0)" class="spin"><path d="M0,-35 L8,-28 -8,-28 Z M0,35 L8,28 -8,28 Z" fill="#e2e8f0"/></g>
+                                        <!-- Álabes TV -->
+                                        <g id="tv-blades-2d" transform="translate(330 0)" class="spin"><path d="M0,-25 L5,-20 -5,-20 Z M0,25 L5,20 -5,20 Z" fill="#7dd3fc"/></g>
+                                    </g>
+                                    
+                                    <!-- Componentes -->
+                                    <g><rect x="40" y="110" width="60" height="80" rx="5" fill="#334155"/><text x="60" y="155" fill="white">TG</text></g>
+                                    <g><rect x="170" y="100" width="60" height="100" rx="5" fill="#334155"/><text x="190" y="155" fill="white">G</text></g>
+                                    <g><rect x="300" y="110" width="60" height="80" rx="5" fill="#334155"/><text x="320" y="155" fill="white">TV</text></g>
 
-        st.markdown("<hr style='margin-top: 10px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+                                    <!-- Combustión -->
+                                    <g id="combustion-2d" style="display:none;"><circle cx="70" cy="120" r="8" fill="orange" class="combustion-effect"/><circle cx="70" cy="180" r="8" fill="orange" class="combustion-effect" style="animation-delay: 0.1s"/></g>
+
+                                    <!-- HRSG y Condensador -->
+                                    <g><rect x="10" y="220" width="200" height="100" rx="5" fill="#334155"/><text x="20" y="235" fill="white" font-size="10">HRSG / Caldera</text><text x="100" y="275" fill="white" font-size="14">Domo</text><rect x="90" y="260" width="40" height="30" fill="#475569"/></g>
+                                    <g><rect x="300" y="220" width="100" height="60" rx="5" fill="#334155"/><text x="315" y="255" fill="white">Condensador</text></g>
+
+                                    <!-- Eléctrico -->
+                                    <g><rect x="480" y="10" width="100" height="30" rx="2" fill="#4b5563"/><text x="500" y="30" fill="white">SE 88 (Edesur)</text></g>
+                                    <g><rect x="480" y="60" width="60" height="40" rx="2" fill="#334155"/><text x="485" y="85" fill="white" font-size="8">Tr. Ppal.</text></g>
+                                    <g><rect x="250" y="40" width="60" height="40" rx="2" fill="#334155"/><text x="260" y="65" fill="white" font-size="8">Tr. Aux.</text></g>
+                                    <g><rect x="250" y="220" width="40" height="30" rx="2" fill="#334155"/><text x="260" y="240" fill="white" font-size="8">SFC</text></g>
+                                    
+                                    <!-- Flujos animados -->
+                                    <path id="flow-gas-exhaust" class="flow-path" style="display:none;" d="M 100 150 H 120 V 230 H 10" stroke="orange" stroke-width="2" marker-end="url(#arrow)"/>
+                                    <path id="flow-steam-main" class="flow-path" style="display:none;" d="M 110 220 V 180 H 300" stroke="cyan" stroke-width="2" marker-end="url(#arrow)"/>
+                                    <path id="flow-steam-return" class="flow-path" style="display:none;" d="M 330 190 V 220" stroke="lightblue" stroke-width="2" marker-end="url(#arrow)"/>
+                                    <path id="flow-water-condensate" class="flow-path" style="display:none;" d="M 350 280 V 310 H 160 V 280" stroke="blue" stroke-width="2" marker-end="url(#arrow)"/>
+                                    <path id="flow-rio-plata" class="flow-path" style="display:none;" d="M 350 340 V 280 M 350 280 H 450" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow)"/>
+                                    <text x="360" y="330" fill="#0ea5e9" font-size="8">Río de la Plata</text>
+
+                                    <!-- Conexiones eléctricas -->
+                                    <path d="M 230 150 H 260 V 80" stroke="#facc15" stroke-width="1.5"/><path d="M 230 150 H 260 V 220" stroke="#facc15" stroke-width="1.5"/>
+                                    <path d="M 460 150 H 510 V 100" stroke="#facc15" stroke-width="1.5"/><path d="M 510 60 V 40" stroke="#facc15" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Panel de control unificado -->
+                    <div class="xl:col-span-1">
+                        <div class="bg-slate-800 p-4 rounded-lg h-full flex flex-col justify-between">
+                            <div>
+                                <h4 class="card-title">Controles de Simulación</h4>
+                                <button id="start-cycle-btn" class="w-full bg-green-600 hover:bg-green-500 font-bold py-2 px-4 rounded-lg mb-4">Iniciar Secuencia</button>
+                                <label for="power-slider" class="block text-sm font-medium">Potencia TG (%)</label>
+                                <input type="range" id="power-slider" min="30" max="100" value="30" class="w-full h-2 rounded-lg appearance-none cursor-pointer" disabled>
+                            </div>
+                            <div>
+                                <h4 class="card-title mt-4">Datos en Tiempo Real</h4>
+                                <div class="space-y-2 text-sm">
+                                    <p>Estado: <span id="status-text" class="font-bold text-yellow-400">Detenido</span></p>
+                                    <p>Velocidad Eje: <span id="rpm-output" class="font-bold text-sky-400">0 RPM</span></p>
+                                    <p>Potencia Total: <span id="power-output" class="font-bold text-sky-400">0 MW</span></p>
+                                    <p>Temp. Gases Escape: <span id="temp-output" class="font-bold text-orange-400">25 °C</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="mea" class="fade-in-section">
+            <h1 class="section-title">Mercado Eléctrico Argentino</h1>
+            <div class="card">
+                <p class="card-title">Actores y Funcionamiento</p>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">Rol de CAMMESA</h3>
+                        <p>La Compañía Administradora del Mercado Mayorista Eléctrico (CAMMESA) es el Despacho Nacional de Cargas. Coordina la operación para satisfacer la demanda al mínimo costo, garantizando la seguridad del sistema.</p>
+                        <pre class="bg-slate-900 p-4 rounded-lg mt-4 text-sm text-center">GENERACIÓN → TRANSPORTE → DISTRIBUCIÓN</pre>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-lg">
+                        <h4 class="font-bold text-sky-400">¿Cómo se despacha?</h4>
+                        <p class="text-sm mt-2">CAMMESA ordena el arranque de centrales por "orden de mérito" (menor costo variable de producción) hasta cubrir la demanda. El precio es fijado por la última central convocada (el costo marginal).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="generadores">
+             <h1 class="section-title fade-in-section">Generadores Sincrónicos</h1>
+             <div class="card fade-in-section">
+                 <div class="grid md:grid-cols-3 gap-8 text-center">
+                     <div>
+                         <p class="card-title">Características</p>
+                         <svg class="w-16 h-16 mx-auto mb-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                         <p class="text-sm">Trifásicos, 3000 RPM, 19 kV, ~390 MVA. Diseñados para máxima estabilidad en la red de 50 Hz.</p>
+                     </div>
+                     <div>
+                         <p class="card-title">Refrigeración por H₂</p>
+                         <svg class="w-16 h-16 mx-auto mb-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7.014A8.003 8.003 0 0122 12c0 1.776-.582 3.428-1.564 4.748-.252.338-.516.662-.79.969M12 12c0 4.418 4.03 8 9 8a9.863 9.863 0 01-3.257-.512" /></svg>
+                         <p class="text-sm">El hidrógeno presurizado ofrece una disipación térmica superior al aire, permitiendo mayor densidad de potencia.</p>
+                     </div>
+                     <div>
+                         <p class="card-title">Excitación y Arranque</p>
+                         <svg class="w-16 h-16 mx-auto mb-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                         <p class="text-sm">Sistema de excitación estática con AVR y arranque mediante Convertidor Estático de Frecuencia (SFC).</p>
+                     </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Resto de secciones (Control, Seguridad, etc.) -->
+         <section id="control" class="fade-in-section">
+             <h1 class="section-title">Control y Mantenimiento</h1>
+             <div class="card"><div class="grid md:grid-cols-2 gap-8"><div><p class="card-title">Control y Supervisión</p><ul class="list-disc list-inside space-y-2"><li><b>DCS:</b> Cerebro de la planta, integra el control de todos los subsistemas.</li><li><b>SCADA:</b> Interfaz HMI para monitoreo y comando.</li><li><b>KKS:</b> Sistema de codificación para identificar cada componente.</li></ul></div><div><p class="card-title">Estrategia de Mantenimiento</p><ul class="list-disc list-inside space-y-2"><li><b>Preventivo:</b> Inspecciones y recambios programados.</li><li><b>Predictivo:</b> Análisis de vibraciones y termografía para anticipar fallas.</li><li><b>Correctivo:</b> Reparaciones tras la ocurrencia de una falla.</li></ul></div></div></div>
+        </section>
+
+        <section id="seguridad" class="fade-in-section">
+            <h1 class="section-title">Seguridad y Medio Ambiente</h1>
+            <div class="card"><div class="grid md:grid-cols-2 gap-8"><div><p class="card-title">Cultura de Seguridad</p><p>Basada en la prevención, con políticas como <b>"Stop Work Authority"</b> y procedimientos <b>LOTO</b> (bloqueo y etiquetado).</p></div><div><p class="card-title">Gestión Ambiental</p><p>Certificada bajo <b>ISO 14001</b> y <b>ISO 45001</b>. Se monitorean continuamente las emisiones de NOx y efluentes.</p></div></div></div>
+        </section>
+
+        <section id="conclusion" class="fade-in-section">
+            <h1 class="section-title">Conclusión Estratégica</h1>
+            <div class="card"><p>La Central Dock Sud es un activo sistémico que aporta <b>eficiencia, confiabilidad y flexibilidad</b> al mercado eléctrico argentino.</p><ul class="list-disc list-inside space-y-2 mt-4"><li><b>Eficiencia Energética:</b> Reduce costos y emisiones de CO₂ por MWh.</li><li><b>Potencia Firme:</b> Esencial para respaldar la intermitencia de fuentes renovables.</li><li><b>Ubicación Estratégica:</b> Minimiza pérdidas de transporte en el mayor centro de consumo.</li><li><b>Tecnología y Confiabilidad:</b> Alta disponibilidad y rápido arranque para la estabilidad del SADI.</li></ul></div>
+        </section>
         
-        # --- RENDERIZADO DEL CAPÍTULO ACTUAL ---
-        mostrar_capitulo(st.session_state.slide)
+        <section id="galeria" class="fade-in-section">
+            <h1 class="section-title">Galería</h1>
+            <div class="card"><div class="grid grid-cols-2 md:grid-cols-3 gap-4"><img src="https://www.ypfluz.com/wp-content/uploads/2022/10/Dock-Sud-02-1.jpg" alt="Vista general de la Central Dock Sud" class="rounded-lg clickable-image" data-title="Vista General"><img src="https://www.ypfluz.com/wp-content/uploads/2022/10/Dock-Sud-01-1.jpg" alt="Equipos principales" class="rounded-lg clickable-image" data-title="Equipos Principales"><img src="https://www.centraldockdsud.com.ar/sites/default/files/styles/flexslider_full/public/central_0.jpg?itok=yqK4-EaU" alt="Vista nocturna" class="rounded-lg clickable-image" data-title="Vista Nocturna"></div></div>
+        </section>
+        
+    </main>
+    
+    <!-- Modal para Imágenes -->
+    <div id="image-modal" class="image-modal-backdrop fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[70] hidden opacity-0">
+        <!-- Contenido del modal -->
+    </div>
 
-        # --- CRÉDITOS FINALES ---
-        with st.expander("Créditos y Fuentes Principales", expanded=False):
-            st.markdown("""
-            - **Contenido Técnico:** Basado en el documento "Informe Técnico – Central De Ciclo Combinado Dock Sud (ypf Luz) (1).pdf" proporcionado.
-            - **YPF Luz:** [https://www.ypfluz.com/](https://www.ypfluz.com/)
-            - **CAMMESA:** [https://www.cammesa.com/](https://www.cammesa.com/)
-            - **Central Dock Sud S.A.:** [https://www.centraldockdsud.com.ar/](https://www.centraldockdsud.com.ar/)
-            - **Diagramas de Ciclos:** Wikimedia Commons
-            """)
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sections = Array.from(document.querySelectorAll('main > section'));
+        const navLinks = document.querySelectorAll('.nav-link');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const desktopNavContainer = document.querySelector('.hidden.md\\:flex');
+        if (desktopNavContainer) { mobileMenu.innerHTML = desktopNavContainer.innerHTML; }
+        mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        
+        let presentationModeActive = false;
+        let currentSlide = 0;
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        const scrollObserver = new IntersectionObserver((entries) => {
+            if (presentationModeActive) return;
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                    });
+                    const intersectingIndex = sections.findIndex(sec => sec.id === id);
+                    if (intersectingIndex !== -1) {
+                        currentSlide = intersectingIndex;
+                    }
+                }
+            });
+        }, { rootMargin: '-40% 0px -60% 0px' });
+        
+        sections.forEach(section => scrollObserver.observe(section));
+
+        const animationObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('is-visible');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.fade-in-section').forEach(section => animationObserver.observe(section));
+
+        // --- SIMULADOR DE CICLO COMBINADO ---
+        const startBtn = document.getElementById('start-cycle-btn');
+        const powerSlider = document.getElementById('power-slider');
+        const statusText = document.getElementById('status-text');
+        const rpmOutput = document.getElementById('rpm-output');
+        const powerOutput = document.getElementById('power-output');
+        const tempOutput = document.getElementById('temp-output');
+
+        const rotors = [document.getElementById('tg-rotor'), document.getElementById('tv-rotor'), document.getElementById('main-shaft')];
+        const flows = {
+            sfc: document.getElementById('sfc-flow'),
+            gas: [document.getElementById('gas-flow')],
+            steam: [document.getElementById('flow-steam-main'), document.getElementById('flow-steam-return')],
+            exhaust: [document.getElementById('flow-gas-exhaust')],
+            water: [document.getElementById('flow-water-condensate'), document.getElementById('flow-rio-plata')],
+        };
+        const flames = [document.getElementById('combustion-flame'), document.getElementById('combustion-2d')];
+        const sfcLight = document.getElementById('sfc-light');
+
+        let cycleState = 'stopped';
+        let rpmInterval;
+
+        function updateAnimations(speed) {
+            rotors.forEach(r => { if(r) r.style.animationDuration = `${2 / speed}s` });
+        }
+
+        function updateDisplay(power, rpm) {
+            rpmOutput.textContent = `${Math.round(rpm)} RPM`;
+            const minPower = 0.3; // 30%
+            const powerRange = 1.0 - minPower;
+            const effectivePower = (power - minPower) / powerRange;
+            
+            const totalPower = 870 * (power > minPower ? effectivePower : 0);
+            powerOutput.textContent = `${totalPower.toFixed(0)} MW`;
+
+            const temp = 580 + 70 * (power > minPower ? effectivePower : 0);
+            tempOutput.textContent = `${temp.toFixed(0)} °C`;
+        }
+        
+        function setFlowsDisplay(state) {
+            Object.values(flows).flat().forEach(el => { if(el) el.style.display = 'none'; });
+            flames.forEach(f => { if(f) f.style.display = 'none'; f.classList.remove('combustion-effect'); });
+            if (sfcLight) sfcLight.classList.remove('active');
+
+            if (state === 'starting') {
+                if(flows.sfc) flows.sfc.style.display = 'block';
+                if(sfcLight) sfcLight.classList.add('active');
+            } else if (state === 'running') {
+                Object.values(flows).flat().forEach(el => { if(el && el !== flows.sfc) el.style.display = 'block'; });
+                flames.forEach(f => { if(f) { f.style.display = 'block'; f.classList.add('combustion-effect'); }});
+            }
+        }
 
 
-if __name__ == "__main__":
-    main()
+        function startCycle() {
+            if (cycleState !== 'stopped') return;
+            cycleState = 'starting';
+            startBtn.disabled = true;
+            statusText.textContent = 'Arrancando (SFC)...';
+            statusText.classList.replace('text-yellow-400', 'text-blue-400');
+            setFlowsDisplay('starting');
+            
+            rotors.forEach(r => { if(r) r.classList.add('spin'); });
+            updateAnimations(0.5); 
+
+            let currentRpm = 0;
+            const targetRpm = 1700;
+            const rampUpTime = 4000;
+            const steps = 100;
+            const stepTime = rampUpTime / steps;
+            const rpmStep = targetRpm / steps;
+
+            rpmInterval = setInterval(() => {
+                currentRpm += rpmStep;
+                if (currentRpm >= targetRpm) {
+                    currentRpm = targetRpm;
+                    clearInterval(rpmInterval);
+                    
+                    cycleState = 'running';
+                    statusText.textContent = 'Mínimo Técnico';
+                    statusText.classList.replace('text-blue-400', 'text-green-400');
+                    powerSlider.disabled = false;
+                    powerSlider.value = 30;
+                    
+                    startBtn.textContent = "Detener Secuencia";
+                    startBtn.classList.replace('bg-green-600', 'bg-red-600');
+                    startBtn.classList.replace('hover:bg-green-500', 'hover:bg-red-500');
+                    startBtn.disabled = false;
+                    
+                    setFlowsDisplay('running');
+                    const animationSpeed = 0.57; // Speed for 1700 RPM (3000*0.57)
+                    updateAnimations(animationSpeed);
+                    updateDisplay(0.3, currentRpm);
+                } else {
+                    updateDisplay(0, currentRpm);
+                }
+            }, stepTime);
+        }
+
+        function stopCycle() {
+            if (cycleState === 'stopped') return;
+            clearInterval(rpmInterval);
+            cycleState = 'stopped';
+            startBtn.disabled = true;
+            powerSlider.disabled = true;
+            powerSlider.value = 30;
+            statusText.textContent = 'Deteniendo...';
+            statusText.classList.replace('text-green-400', 'text-yellow-400');
+            setFlowsDisplay('stopped');
+            rotors.forEach(r => { if(r) r.classList.remove('spin'); });
+            updateDisplay(0, 0);
+            
+            setTimeout(() => {
+                statusText.textContent = 'Detenido';
+                startBtn.textContent = "Iniciar Secuencia";
+                startBtn.classList.replace('bg-red-600', 'bg-green-600');
+                startBtn.classList.replace('hover:bg-red-500', 'hover:bg-green-500');
+                startBtn.disabled = false;
+            }, 1500);
+        }
+
+        startBtn.addEventListener('click', () => {
+            cycleState === 'stopped' ? startCycle() : stopCycle();
+        });
+
+        powerSlider.addEventListener('input', (e) => {
+            if (cycleState !== 'running') return;
+            const powerLevel = e.target.value / 100;
+            const minRpm = 1700, maxRpm = 3000;
+            const currentRpm = minRpm + (maxRpm - minRpm) * ((powerLevel - 0.3) / 0.7);
+            
+            const animationSpeed = 0.57 + (1.0 - 0.57) * ((powerLevel - 0.3) / 0.7);
+            updateAnimations(animationSpeed);
+            updateDisplay(powerLevel, currentRpm);
+        });
+
+        // Tab logic for simulators
+        const simTabs = document.getElementById('simulator-tabs');
+        if(simTabs){
+            simTabs.querySelectorAll('.tab-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    simTabs.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    const target = document.getElementById(button.dataset.target);
+                    document.querySelectorAll('#simulator-views .tab-content').forEach(tc => tc.classList.remove('active'));
+                    if(target) target.classList.add('active');
+                });
+            });
+        }
+        
+        // --- CARÁTULA Y DEMÁS SCRIPTS ---
+        const caratulaCard = document.getElementById('caratula-card');
+        const showOverlay = (id) => {
+            caratulaCard.querySelectorAll('.cover-overlay').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(id);
+            if (target) { target.classList.add('active'); }
+        };
+        caratulaCard.querySelectorAll('[data-member]').forEach(btn => {
+            btn.addEventListener('mouseenter', () => showOverlay(`cover-${btn.dataset.member}`));
+        });
+        caratulaCard.addEventListener('mouseleave', () => showOverlay('cover-default'));
+        document.getElementById('show-group').addEventListener('click', (e) => {
+            e.stopPropagation();
+            showOverlay('cover-group');
+        });
+        
+        // --- MODO PRESENTACIÓN Y OTROS ---
+        const playBtn = document.getElementById('play-presentation-btn');
+        const playIcon = document.getElementById('play-icon');
+        const stopIcon = document.getElementById('stop-icon');
+        const prevNav = document.getElementById('presentation-nav-prev');
+        const nextNav = document.getElementById('presentation-nav-next');
+        const prevBtn = prevNav.querySelector('button');
+        const nextBtn = nextNav.querySelector('button');
+        
+        function updateNavButtons() {
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === sections.length - 1;
+        }
+
+        function showSlide(index) {
+            sections.forEach((slide, i) => {
+                slide.classList.toggle('active-slide', i === index);
+            });
+            const targetSection = sections[index];
+            if (targetSection) {
+                setTimeout(() => {
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+            updateNavButtons();
+        }
+
+        playBtn.addEventListener('click', () => {
+            presentationModeActive = !presentationModeActive;
+            document.body.classList.toggle('presentation-mode', presentationModeActive);
+            playIcon.classList.toggle('hidden', presentationModeActive);
+            stopIcon.classList.toggle('hidden', !presentationModeActive);
+
+            const navOpacity = presentationModeActive ? '1' : '0';
+            const navEvents = presentationModeActive ? 'auto' : 'none';
+
+            prevNav.style.opacity = navOpacity;
+            nextNav.style.opacity = navOpacity;
+            prevNav.style.pointerEvents = navEvents;
+            nextNav.style.pointerEvents = navEvents;
+
+            if (presentationModeActive) {
+                showSlide(currentSlide);
+            } else {
+                sections.forEach(slide => slide.classList.remove('active-slide'));
+                const targetSection = sections[currentSlide];
+                if (targetSection) {
+                    window.scrollTo({ top: targetSection.offsetTop - 80, behavior: 'smooth' });
+                }
+            }
+        });
+
+        nextBtn.addEventListener('click', () => { if (currentSlide < sections.length - 1) { currentSlide++; showSlide(currentSlide); } });
+        prevBtn.addEventListener('click', () => { if (currentSlide > 0) { currentSlide--; showSlide(currentSlide); } });
+    });
+    </script>
+</body>
+</html>
