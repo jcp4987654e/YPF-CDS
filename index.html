@@ -13,6 +13,9 @@
             --sky-400: #38bdf8;
             --slate-800: #1e293b;
             --slate-900: #0f172a;
+            --green-400: #4ade80;
+            --yellow-400: #facc15;
+            --gray-500: #6b7280;
         }
         body {
             font-family: 'Roboto Mono', monospace;
@@ -32,7 +35,7 @@
             justify-content: center;
             background-size: cover;
             background-position: center;
-            background-attachment: fixed; /* Efecto Parallax */
+            background-attachment: fixed;
             position: relative;
         }
         .section-divider::before {
@@ -86,78 +89,27 @@
             min-height: calc(100vh - 120px); opacity: 1; transform: translateY(0);
         }
         body.presentation-mode #main-header { opacity: 0; pointer-events: none; }
-        body.presentation-mode .section-divider { display: none; } /* Ocultar divisores en modo presentación */
-
+        body.presentation-mode .section-divider { display: none; } 
 
         /* --- Animaciones y Componentes --- */
         .fade-in-section { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
         .fade-in-section.is-visible { opacity: 1; transform: translateY(0); }
         
-        /* --- NUEVA LÍNEA DE TIEMPO --- */
-        .timeline-container {
-            position: relative;
-            padding: 2rem 0;
-        }
-        .timeline-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 100%;
-            background-color: var(--slate-800);
-            border-radius: 2px;
-        }
-        .timeline-block {
-            position: relative;
-            width: 50%;
-            padding: 1rem 2rem;
-            box-sizing: border-box;
-        }
-        .timeline-block:nth-child(odd) {
-            left: 0;
-        }
-        .timeline-block:nth-child(even) {
-            left: 50%;
-        }
-        .timeline-content {
-            background-color: var(--slate-800);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            border: 1px solid #334155;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        .timeline-date {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: var(--sky-400);
-            border: 4px solid var(--slate-900);
-            color: var(--slate-900);
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            z-index: 10;
-        }
-        .timeline-block:nth-child(odd) .timeline-date {
-            right: -40px;
-        }
-        .timeline-block:nth-child(even) .timeline-date {
-            left: -40px;
-        }
+        .timeline-container { position: relative; padding: 2rem 0; margin: 0 auto; max-width: 800px; }
+        .timeline-container::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background-color: var(--slate-800); border-radius: 2px; }
+        .timeline-block { position: relative; width: 50%; padding: 1rem 2rem; box-sizing: border-box; }
+        .timeline-block:nth-child(odd) { left: 0; }
+        .timeline-block:nth-child(even) { left: 50%; }
+        .timeline-content { background-color: var(--slate-800); padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .timeline-date { position: absolute; top: 50%; transform: translateY(-50%); width: 80px; height: 80px; border-radius: 50%; background-color: var(--sky-400); border: 4px solid var(--slate-900); color: var(--slate-900); font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; z-index: 10; }
+        .timeline-block:nth-child(odd) .timeline-date { right: -40px; }
+        .timeline-block:nth-child(even) .timeline-date { left: -40px; }
         
         .tab-btn.active { background-color: var(--sky-400); color: var(--slate-900); }
         .tab-content { display: none; animation: fadeIn 0.5s; } 
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- Carátula Interactiva --- */
         .cover-overlay { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.5s ease-in-out; display: flex; flex-direction: column; justify-content: center; align-items: center; background-size: cover; background-position: center; border-radius: 12px; }
         .cover-overlay.active { opacity: 1; pointer-events: auto; }
         .cover-overlay .overlay-backdrop { position: absolute; inset: 0; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); border-radius: 12px; }
@@ -171,12 +123,10 @@
         @keyframes dash { to { stroke-dashoffset: -20; } }
         #sfc-light.active { animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes combustion {
-            0% { transform: scale(0.8); opacity: 0.7; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.8); opacity: 0.7; }
-        }
+        @keyframes combustion { 0% { transform: scale(0.8); opacity: 0.7; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.7; } }
         .combustion-effect { animation: combustion 0.2s infinite; transform-origin: center;}
+        
+        .logic-gate, .logic-line, .logic-text, .logic-indicator { transition: all 0.3s ease-in-out; }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -277,18 +227,18 @@
                 <div class="grid md:grid-cols-2 gap-8">
                     <div>
                         <h3 class="text-2xl font-bold mb-2">Ciclo Brayton (Turbina de Gas - TG)</h3>
-                        <p class="mb-4">Base de las turbinas de gas. Convierte energía del combustible en trabajo mediante compresión, combustión y expansión de aire.</p>
+                        <p class="mb-4">Base de las turbinas de gas (GT26). Convierte energía del combustible en trabajo mediante compresión, combustión y expansión de aire.</p>
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Brayton_cycle.svg/400px-Brayton_cycle.svg.png" alt="Diagrama Brayton" class="mx-auto bg-white rounded p-2 clickable-image" data-title="Ciclo Brayton">
                     </div>
                     <div>
                         <h3 class="text-2xl font-bold mb-2">Ciclo Rankine (Turbina de Vapor - TV)</h3>
-                        <p class="mb-4">Utiliza un cambio de fase (agua-vapor) para convertir energía térmica en trabajo. El vapor a alta presión mueve una turbina.</p>
+                        <p class="mb-4">Utiliza un cambio de fase (agua-vapor). En Dock Sud opera con 3 niveles de presión (alta, media y baja) y recalentamiento para maximizar la eficiencia.</p>
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Rankine_cycle_T-S_diagram.svg/400px-Rankine_cycle_T-S_diagram.svg.png" alt="Diagrama Rankine" class="mx-auto bg-white rounded p-2 clickable-image" data-title="Ciclo Rankine">
                     </div>
                 </div>
                 <hr class="my-6 border-slate-700">
                 <h3 class="text-2xl font-bold mb-2 text-sky-300">Ciclo Combinado (Brayton + Rankine)</h3>
-                <p>La integración sinérgica de ambos. Los gases de escape calientes (~650°C) de la turbina de gas generan vapor en una Caldera de Recuperación (HRSG). Este vapor alimenta una turbina de vapor, produciendo electricidad adicional sin quemar más combustible y elevando la eficiencia total por encima del 58%.</p>
+                <p>La integración sinérgica de ambos. Se reutilizan los gases de escape calientes (~650°C) de las turbinas de gas para generar vapor en calderas de recuperación (HRSG). Este vapor alimenta una turbina de vapor, produciendo electricidad adicional sin quemar más combustible y elevando la eficiencia total por encima del 58%.</p>
              </div>
         </section>
 
@@ -302,49 +252,39 @@
              <div class="card fade-in-section">
                 <p class="card-title text-center">Línea de Tiempo de la Central</p>
                 <div class="timeline-container">
-                    <!-- Hito 1 -->
                     <div class="timeline-block fade-in-section">
                         <div class="timeline-date">1907</div>
                         <div class="timeline-content">
-                            <h3 class="font-bold text-xl mb-2 text-sky-300">Nace la Usina Dock Sud</h3>
-                            <p>La Compañía Alemana Transatlántica de Electricidad (CATE) inicia las obras para abastecer a Buenos Aires y sus alrededores.</p>
-                            <!-- [Imagen de la Usina CATE en 1910] -->
+                            <h3 class="font-bold text-xl mb-2 text-sky-300">Nace la Usina</h3>
+                            <p>La CATE (Compañía Alemana Transatlántica de Electricidad) comienza las obras, proyectadas por AEG de Berlín.</p>
                         </div>
                     </div>
-                    <!-- Hito 2 -->
                     <div class="timeline-block fade-in-section">
                         <div class="timeline-date">1962</div>
                         <div class="timeline-content">
-                            <h3 class="font-bold text-xl mb-2 text-sky-300">Creación de SEGBA</h3>
-                            <p>Tras un período de expansión y un incendio significativo, la central es estatizada y pasa a ser operada por Servicios Eléctricos del Gran Buenos Aires.</p>
-                            <!-- [Imagen de la central bajo SEGBA] -->
+                            <h3 class="font-bold text-xl mb-2 text-sky-300">Era Estatal (SEGBA)</h3>
+                            <p>Tras un período de expansión y un incendio, la central es estatizada y operada por Servicios Eléctricos del Gran Buenos Aires.</p>
                         </div>
                     </div>
-                     <!-- Hito 3 -->
-                    <div class="timeline-block fade-in-section">
+                     <div class="timeline-block fade-in-section">
                         <div class="timeline-date">1992</div>
                         <div class="timeline-content">
-                            <h3 class="font-bold text-xl mb-2 text-sky-300">Privatización y Modernización</h3>
-                            <p>Se privatiza Central Dock Sud S.A. Un nuevo grupo accionario (Endesa-Astra-Bridas) se hace cargo en 1996 e inicia la reconversión a Ciclo Combinado.</p>
-                           <!-- [Imagen de la central en los 90s] -->
+                            <h3 class="font-bold text-xl mb-2 text-sky-300">Privatización</h3>
+                            <p>Se privatiza Central Dock Sud S.A. En 1996, el grupo Endesa-Astra-Bridas inicia la modernización a Ciclo Combinado.</p>
                         </div>
                     </div>
-                     <!-- Hito 4 -->
-                    <div class="timeline-block fade-in-section">
+                     <div class="timeline-block fade-in-section">
                         <div class="timeline-date">2001</div>
                         <div class="timeline-content">
-                            <h3 class="font-bold text-xl mb-2 text-sky-300">Era del Ciclo Combinado</h3>
-                            <p>El 20 de Enero se pone en operación el nuevo Ciclo Combinado de 780MW. La Torre de la central es reinaugurada como Monumento Histórico.</p>
-                            <!-- [Imagen de la Torre de CDS] -->
+                            <h3 class="font-bold text-xl mb-2 text-sky-300">Ciclo Combinado</h3>
+                            <p>Se pone en operación el nuevo Ciclo Combinado de 780MW. La Torre histórica es reinaugurada como Monumento.</p>
                         </div>
                     </div>
-                     <!-- Hito 5 -->
-                    <div class="timeline-block fade-in-section">
+                     <div class="timeline-block fade-in-section">
                         <div class="timeline-date">2023</div>
                         <div class="timeline-content">
-                            <h3 class="font-bold text-xl mb-2 text-sky-300">YPF Luz toma el Control</h3>
-                            <p>El 14 de Abril, YPF Luz adquiere el paquete accionario y comienza a operar la central, realizando un mantenimiento mayor que mejora su eficiencia y capacidad.</p>
-                           <!-- [Imagen del equipo de YPF Luz en la central] -->
+                            <h3 class="font-bold text-xl mb-2 text-sky-300">YPF Luz</h3>
+                            <p>YPF Luz adquiere el paquete accionario, opera la central y realiza un mantenimiento mayor para incrementar su capacidad y eficiencia.</p>
                         </div>
                     </div>
                 </div>
@@ -359,11 +299,11 @@
         <!-- SECCIÓN TÉCNICA INTERACTIVA -->
         <section id="tecnica">
             <div class="card fade-in-section">
-                <p class="card-title text-center">Simulador de Operación del Ciclo Combinado</p>
+                <p class="card-title text-center">Simulador de Operación del Ciclo Combinado 2x1</p>
                 <!-- Tabs para el simulador -->
                 <div class="flex border-b border-slate-700 mb-4 justify-center" id="simulator-tabs">
-                    <button class="tab-btn active font-bold py-2 px-4 rounded-t-lg" data-target="tab-sim-bloques">Diagrama de Bloques</button>
-                    <button class="tab-btn font-bold py-2 px-4 rounded-t-lg" data-target="tab-sim-2d">Vista 2D Simplificada</button>
+                    <button class="tab-btn active font-bold py-2 px-4 rounded-t-lg" data-target="tab-sim-bloques">Diagrama de Bloques 2x1</button>
+                    <button class="tab-btn font-bold py-2 px-4 rounded-t-lg" data-target="tab-sim-logica">Diagrama Lógico de Arranque</button>
                 </div>
 
                 <div class="grid xl:grid-cols-5 gap-6">
@@ -371,55 +311,85 @@
                         <!-- Contenedor para las vistas del simulador -->
                         <div id="simulator-views">
                             <div id="tab-sim-bloques" class="tab-content active">
-                                <svg id="cc-diagram" viewBox="0 0 400 250" class="bg-slate-900 rounded-lg w-full">
+                                <svg id="cc-diagram" viewBox="0 0 600 400" class="bg-slate-900 rounded-lg w-full">
                                     <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fff"/></marker><path id="flame" d="M11 20s-2.14-3.84-2.14-6.16c0-2.92 2.38-4.84 4.14-4.84 1.76 0 4.14 1.92 4.14 4.84C17.14 16.16 15 20 15 20z" fill="orange"/></defs>
-                                    <rect x="20" y="80" width="80" height="40" fill="#334155" stroke="#7dd3fc" /><text x="35" y="105" fill="white" font-size="10">TG</text><g id="tg-rotor" transform="translate(60, 100)"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="white" stroke-width="1"/></g>
-                                    <rect x="150" y="50" width="30" height="100" fill="#334155" stroke="#7dd3fc" /><text x="155" y="105" fill="white" font-size="10">HRSG</text>
-                                    <rect x="230" y="80" width="80" height="40" fill="#334155" stroke="#7dd3fc" /><text x="245" y="105" fill="white" font-size="10">TV</text><g id="tv-rotor" transform="translate(270, 100)"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="white" stroke-width="1"/></g>
-                                    <rect x="230" y="170" width="80" height="30" fill="#334155" stroke="#7dd3fc" /><text x="240" y="190" fill="white" font-size="10">Condensador</text>
-                                    <rect x="340" y="80" width="40" height="40" fill="#334155" stroke="#7dd3fc" /><text x="345" y="105" fill="white" font-size="10">GEN</text>
-                                    <rect x="340" y="150" width="40" height="30" fill="#334155" stroke="#a5b4fc" /><text x="350" y="170" fill="white" font-size="10">SFC</text><circle id="sfc-light" cx="360" cy="135" r="3" fill="red" opacity="0.3"/>
-                                    <path d="M 100 100 H 150" stroke="orange" stroke-width="2" marker-end="url(#arrow)" id="gas-flow" style="display:none;"/><path d="M 180 80 H 230" stroke="cyan" stroke-width="2" marker-end="url(#arrow)" id="steam-flow" class="flow-path" style="display:none;"/><path d="M 270 120 V 170" stroke="lightblue" stroke-width="2" marker-end="url(#arrow)" id="exhaust-flow" class="flow-path" style="display:none;"/><path d="M 230 185 H 180 V 120" stroke="blue" stroke-width="2" marker-end="url(#arrow)" id="water-flow" class="flow-path" style="display:none;"/><path d="M 340 140 V 120" stroke="#a5b4fc" stroke-width="2" marker-end="url(#arrow)" id="sfc-flow" style="display:none;"/>
-                                    <use href="#flame" x="43" y="55" id="combustion-flame" style="display:none;" />
+                                    
+                                    <!-- Componentes TG1 y TG2 -->
+                                    <g id="group-tg1"><rect x="20" y="50" width="80" height="40" fill="#334155" stroke="#7dd3fc" /><text x="35" y="75" fill="white" font-size="10">TG 1</text><g class="spin" id="tg1-rotor" transform="translate(60, 70)"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="white" stroke-width="1"/></g><use href="#flame" x="43" y="25" id="combustion-flame1" class="combustion-effect" style="display:none;" /></g>
+                                    <g id="group-tg2"><rect x="20" y="250" width="80" height="40" fill="#334155" stroke="#7dd3fc" /><text x="35" y="275" fill="white" font-size="10">TG 2</text><g class="spin" id="tg2-rotor" transform="translate(60, 270)"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="white" stroke-width="1"/></g><use href="#flame" x="43" y="225" id="combustion-flame2" class="combustion-effect" style="display:none;" /></g>
+                                    
+                                    <!-- Generadores TG -->
+                                    <g><rect x="120" y="50" width="60" height="40" fill="#334155" stroke="#e2e8f0"/><text x="135" y="75" fill="white" font-size="10">GEN 1</text></g>
+                                    <g><rect x="120" y="250" width="60" height="40" fill="#334155" stroke="#e2e8f0"/><text x="135" y="275" fill="white" font-size="10">GEN 2</text></g>
+                                    
+                                    <!-- HRSGs -->
+                                    <g><rect x="200" y="40" width="30" height="60" fill="#334155" stroke="#7dd3fc" /><text x="203" y="75" fill="white" font-size="10">HRSG1</text></g>
+                                    <g><rect x="200" y="240" width="30" height="60" fill="#334155" stroke="#7dd3fc" /><text x="203" y="275" fill="white" font-size="10">HRSG2</text></g>
+                                    
+                                    <!-- Componentes TV y GEN_V -->
+                                    <g><rect x="340" y="140" width="80" height="40" fill="#334155" stroke="#7dd3fc" /><text x="355" y="165" fill="white" font-size="10">TV</text><g class="spin" id="tv-rotor" transform="translate(380, 160)"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="white" stroke-width="1"/></g></g>
+                                    <g><rect x="440" y="140" width="60" height="40" fill="#334155" stroke="#e2e8f0"/><text x="450" y="165" fill="white" font-size="10">GEN V</text></g>
+                                    
+                                    <!-- Condensador y Agua -->
+                                    <g><rect x="340" y="220" width="80" height="30" fill="#334155" stroke="#7dd3fc" /><text x="345" y="240" fill="white" font-size="10">Condensador</text></g>
+                                    
+                                    <!-- Eléctrico -->
+                                    <g><rect x="30" y="320" width="60" height="30" fill="#334155" stroke="#a5b4fc" /><text x="50" y="340" fill="white" font-size="10">SFC</text></g>
+                                    <g><rect x="520" y="140" width="60" height="40" fill="#334155" stroke="#facc15"/><text x="525" y="165" fill="white" font-size="8">TFO Ppal</text></g>
+                                    
+                                    <!-- Flujos -->
+                                    <path id="flow-gas1" class="flow-path" d="M100 70 H 200" stroke="orange" stroke-width="2" style="display:none;"/>
+                                    <path id="flow-gas2" class="flow-path" d="M100 270 H 200" stroke="orange" stroke-width="2" style="display:none;"/>
+                                    <path id="flow-steam-h" class="flow-path" d="M230 70 H 310 C 325 70 325 150 340 150" stroke="cyan" stroke-width="2" style="display:none;"/>
+                                    <path id="flow-steam-l" class="flow-path" d="M230 270 H 310 C 325 270 325 170 340 170" stroke="cyan" stroke-width="2" style="display:none;"/>
+                                    <path id="flow-exhaust" class="flow-path" d="M380 180 V 220" stroke="lightblue" stroke-width="2" style="display:none;"/>
+                                    <path id="flow-water" class="flow-path" d="M340 235 H 260 V 100 H 230 M260 240 V 300 H 230" stroke="blue" stroke-width="2" style="display:none;"/>
+                                    <path id="flow-sfc-power1" d="M90 320 H 150 V 90" stroke="#a5b4fc" stroke-width="2" style="display:none;"/>
+                                    <path id="flow-sfc-power2" d="M90 320 H 150 V 250" stroke="#a5b4fc" stroke-width="2" style="display:none;"/>
+                                    <path id="flow-bypass" class="flow-path" d="M230 70 H 240 V 235 H 250" stroke="cyan" stroke-width="2" stroke-dasharray="5,5" style="display:none;"/>
+
+                                    <path id="flow-main-power-1" d="M180 70 H 550 V 110" stroke="#facc15" stroke-width="1.5" style="display:none;"/>
+                                    <path id="flow-main-power-2" d="M180 270 H 550 V 180" stroke="#facc15" stroke-width="1.5" style="display:none;"/>
+                                    <path id="flow-main-power-v" d="M500 160 H 520" stroke="#facc15" stroke-width="1.5" style="display:none;"/>
                                 </svg>
                             </div>
-                            <div id="tab-sim-2d" class="tab-content">
-                                <svg id="turbine-2d" viewBox="0 0 600 350" class="bg-slate-900 rounded-lg w-full">
+                           
+                             <div id="tab-sim-logica" class="tab-content">
+                                <svg id="logic-diagram" viewBox="0 0 450 300" class="bg-slate-900 rounded-lg w-full">
                                      <defs>
-                                        <path id="blade" d="M-2 -10 L2 -10 L1 -7 L-1 -7 Z" />
-                                        <marker id="arrow-2d" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fff"/></marker>
+                                        <g id="and-gate-logic">
+                                            <path d="M 0 0 H 25 C 45 0 45 60 25 60 H 0 Z" stroke-width="2" />
+                                            <circle cx="0" cy="5" r="1.5" /><circle cx="0" cy="15" r="1.5" /><circle cx="0" cy="25" r="1.5" /><circle cx="0" cy="35" r="1.5" /><circle cx="0" cy="45" r="1.5" /><circle cx="0" cy="55" r="1.5" />
+                                            <circle cx="40" cy="30" r="1.5" />
+                                        </g>
                                     </defs>
-                                    <!-- Eje principal -->
-                                    <g id="main-shaft" transform="translate(0 150)">
-                                        <rect x="120" y="-7.5" width="260" height="15" fill="#94a3b8"/>
-                                        <g id="tg-blades-2d" transform="translate(150 0)" class="spin"><path d="M0,-25 L5,-20 -5,-20 Z M0,25 L5,20 -5,20 Z" fill="#7dd3fc"/></g>
-                                        <g id="g-blades-2d" transform="translate(250 0)" class="spin"><path d="M0,-35 L8,-28 -8,-28 Z M0,35 L8,28 -8,28 Z" fill="#e2e8f0"/></g>
-                                        <g id="tv-blades-2d" transform="translate(350 0)" class="spin"><path d="M0,-25 L5,-20 -5,-20 Z M0,25 L5,20 -5,20 Z" fill="#7dd3fc"/></g>
+                                    <!-- Entradas -->
+                                    <g transform="translate(20 20)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-sfc-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">SFC Disponible</text></g>
+                                    <g transform="translate(20 55)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-gen-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">GEN Permisivos OK</text></g>
+                                    <g transform="translate(20 90)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-oil-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">Presión Aceite OK</text></g>
+                                    <g transform="translate(20 125)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-gas-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">Combustible OK</text></g>
+                                    <g transform="translate(20 160)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-rpm-ign-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">Velocidad > 1400 RPM</text></g>
+                                    <g transform="translate(20 195)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-rpm-min-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">Velocidad > 2700 RPM</text></g>
+                                    <g transform="translate(20 230)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-fire-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">Sist. Incendio OK</text></g>
+                                    
+                                    <!-- Puerta AND -->
+                                    <g transform="translate(220 95)">
+                                        <use href="#and-gate-logic" id="logic-and-gate" class="logic-gate" stroke="var(--gray-500)" fill="none"/>
+                                        <text x="10" y="34" font-size="12" id="logic-and-text" class="logic-text" fill="var(--gray-500)">&</text>
                                     </g>
-                                    <!-- Componentes -->
-                                    <g><rect x="120" y="110" width="60" height="80" rx="5" fill="#334155"/><text x="140" y="155" fill="white">TG</text></g>
-                                    <g><rect x="220" y="100" width="60" height="100" rx="5" fill="#334155"/><text x="240" y="155" fill="white">G</text></g>
-                                    <g><rect x="320" y="110" width="60" height="80" rx="5" fill="#334155"/><text x="340" y="155" fill="white">TV</text></g>
-                                    <!-- Combustión -->
-                                    <g id="combustion-2d" style="display:none;"><circle cx="150" cy="120" r="8" fill="orange" class="combustion-effect"/><circle cx="150" cy="180" r="8" fill="orange" class="combustion-effect" style="animation-delay: 0.1s"/></g>
-                                    <!-- HRSG y Condensador -->
-                                    <g><rect x="10" y="220" width="200" height="100" rx="5" fill="#334155"/><text x="20" y="235" fill="white" font-size="10">HRSG / Caldera</text><text x="100" y="275" fill="white" font-size="14">Domo</text><rect x="90" y="260" width="40" height="30" fill="#475569"/></g>
-                                    <g><rect x="300" y="220" width="100" height="60" rx="5" fill="#334155"/><text x="315" y="255" fill="white">Condensador</text></g>
-                                    <!-- Eléctrico -->
-                                    <g><rect x="480" y="10" width="100" height="30" rx="2" fill="#4b5563"/><text x="500" y="30" fill="white">SE 88 (Edesur)</text></g>
-                                    <g><rect x="480" y="60" width="60" height="40" rx="2" fill="#334155"/><text x="485" y="85" fill="white" font-size="8">Tr. Ppal.</text></g>
-                                    <g><rect x="300" y="40" width="60" height="40" rx="2" fill="#334155"/><text x="310" y="65" fill="white" font-size="8">Tr. Aux.</text></g>
-                                    <g><rect x="30" y="40" width="40" height="30" rx="2" fill="#334155"/><text x="40" y="60" fill="white" font-size="8">SFC</text></g>
-                                    <!-- Flujos animados -->
-                                    <path id="flow-gas-exhaust" class="flow-path" style="display:none;" d="M 180 150 H 200 V 230 H 10" stroke="orange" stroke-width="2" marker-end="url(#arrow-2d)"/>
-                                    <path id="flow-steam-main" class="flow-path" style="display:none;" d="M 110 220 V 180 H 320" stroke="cyan" stroke-width="2" marker-end="url(#arrow-2d)"/>
-                                    <path id="flow-steam-return" class="flow-path" style="display:none;" d="M 350 190 V 220" stroke="lightblue" stroke-width="2" marker-end="url(#arrow-2d)"/>
-                                    <path id="flow-water-condensate" class="flow-path" style="display:none;" d="M 350 280 V 310 H 160 V 280" stroke="blue" stroke-width="2" marker-end="url(#arrow-2d)"/>
-                                    <path id="flow-rio-plata" class="flow-path" style="display:none;" d="M 400 340 V 280 M 400 280 H 450" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow-2d)"/>
-                                    <text x="405" y="330" fill="#0ea5e9" font-size="8">Río de la Plata</text>
-                                    <!-- Conexiones eléctricas -->
-                                    <path d="M 280 150 H 330 V 80" stroke="#facc15" stroke-width="1.5"/><path d="M 280 150 H 510 V 100" stroke="#facc15" stroke-width="1.5"/><path d="M 510 60 V 40" stroke="#facc15" stroke-width="1.5"/>
-                                    <path d="M 220 150 H 50 V 70" stroke="#a5b4fc" stroke-width="1.5" id="flow-sfc-power" style="display: none"/>
+                                    
+                                    <!-- Salida -->
+                                     <g transform="translate(320 102.5)"><rect width="110" height="25" rx="5" id="logic-output-box" fill="#334155"/><text x="5" y="17.5" fill="white" font-size="10">Permiso Arranque</text></g>
+                                    
+                                    <!-- Líneas -->
+                                    <path id="line-sfc" class="logic-line" d="M 150 32.5 H 220" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
+                                    <path id="line-gen" class="logic-line" d="M 150 67.5 H 220" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
+                                    <path id="line-oil" class="logic-line" d="M 150 102.5 H 220" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
+                                    <path id="line-gas" class="logic-line" d="M 150 137.5 H 220" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
+                                    <path id="line-rpm-ign" class="logic-line" d="M 150 172.5 H 220" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
+                                    <path id="line-rpm-min" class="logic-line" d="M 150 207.5 H 220" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
+                                    <path id="line-fire" class="logic-line" d="M 150 242.5 H 200 C 210 242.5 210 155 220 155" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
+                                    <path id="line-output" class="logic-line" d="M 260 115 H 320" stroke="var(--gray-500)" fill="none" stroke-width="2" marker-end="url(#arrow)"/>
                                 </svg>
                             </div>
                         </div>
@@ -455,12 +425,12 @@
                 <div class="grid md:grid-cols-2 gap-8 items-start">
                     <div>
                         <h3 class="text-2xl font-bold mb-2">Rol de CAMMESA</h3>
-                        <p>La Compañía Administradora del Mercado Mayorista Eléctrico (CAMMESA) es el Despacho Nacional de Cargas. Coordina la operación para satisfacer la demanda al mínimo costo, garantizando la seguridad del sistema.</p>
+                        <p>CAMMESA coordina el despacho para satisfacer la demanda al mínimo costo. Dock Sud es priorizada por su eficiencia y bajos costos variables.</p>
                         <pre class="bg-slate-900 p-4 rounded-lg mt-4 text-sm text-center">GENERACIÓN → TRANSPORTE → DISTRIBUCIÓN</pre>
                     </div>
                     <div class="bg-slate-900 p-4 rounded-lg">
                         <h4 class="font-bold text-sky-400">¿Cómo se despacha?</h4>
-                        <p class="text-sm mt-2">CAMMESA ordena el arranque de centrales por "orden de mérito" (menor costo variable de producción) hasta cubrir la demanda. El precio es fijado por la última central convocada (el costo marginal).</p>
+                        <p class="text-sm mt-2">Se arranca por "orden de mérito" (costo). El precio lo fija la última central convocada (costo marginal). Dock Sud, por su ubicación, también aporta confiabilidad a la red del AMBA.</p>
                     </div>
                 </div>
             </div>
@@ -473,7 +443,7 @@
                      <div>
                          <p class="card-title">Características</p>
                          <svg class="w-16 h-16 mx-auto mb-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                         <p class="text-sm">Trifásicos, 3000 RPM, 19 kV, ~390 MVA. Diseñados para máxima estabilidad en la red de 50 Hz.</p>
+                         <p class="text-sm">Trifásicos, 3000 RPM, 19 kV (TG) / 11kV [Dato por confirmar] (TV), ~390 MVA. Diseñados para máxima estabilidad en la red de 50 Hz.</p>
                      </div>
                      <div>
                          <p class="card-title">Refrigeración por H₂</p>
@@ -483,7 +453,7 @@
                      <div>
                          <p class="card-title">Excitación y Arranque</p>
                          <svg class="w-16 h-16 mx-auto mb-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
-                         <p class="text-sm">Sistema de excitación estática con AVR y arranque mediante Convertidor Estático de Frecuencia (SFC).</p>
+                         <p class="text-sm">Sistema de excitación estática con AVR y arranque de las TG mediante Convertidor Estático de Frecuencia (SFC).</p>
                      </div>
                  </div>
             </div>
@@ -526,6 +496,10 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const sections = Array.from(document.querySelectorAll('main > section'));
+        let presentationModeActive = false;
+        let currentSlide = 0;
+
+        // --- NAVEGACIÓN Y VISIBILIDAD ---
         const navLinks = document.querySelectorAll('.nav-link');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -533,9 +507,6 @@
         if (desktopNavContainer) { mobileMenu.innerHTML = desktopNavContainer.innerHTML; }
         mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
         
-        let presentationModeActive = false;
-        let currentSlide = 0;
-
         const scrollObserver = new IntersectionObserver((entries) => {
             if (presentationModeActive) return;
             entries.forEach(entry => {
@@ -545,13 +516,10 @@
                         link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
                     });
                     const intersectingIndex = sections.findIndex(sec => sec.id === id);
-                    if (intersectingIndex !== -1) {
-                        currentSlide = intersectingIndex;
-                    }
+                    if (intersectingIndex !== -1) { currentSlide = intersectingIndex; }
                 }
             });
         }, { rootMargin: '-40% 0px -60% 0px' });
-        
         sections.forEach(section => scrollObserver.observe(section));
 
         const animationObserver = new IntersectionObserver((entries) => {
@@ -569,19 +537,44 @@
         const powerOutput = document.getElementById('power-output');
         const tempOutput = document.getElementById('temp-output');
 
-        const rotors = [document.getElementById('tg-rotor'), document.getElementById('tv-rotor'), document.getElementById('main-shaft')];
+        const rotors = document.querySelectorAll('.spin');
         const flows = {
-            sfc: [document.getElementById('sfc-flow'), document.getElementById('flow-sfc-power')],
-            gas: [document.getElementById('gas-flow')],
-            steam: [document.getElementById('flow-steam-main'), document.getElementById('flow-steam-return')],
-            exhaust: [document.getElementById('flow-gas-exhaust')],
-            water: [document.getElementById('flow-water-condensate'), document.getElementById('flow-rio-plata')],
+            sfc: [document.getElementById('flow-sfc-power1'), document.getElementById('flow-sfc-power2')],
+            gas: [document.getElementById('flow-gas1'), document.getElementById('flow-gas2')],
+            steam: [document.getElementById('flow-steam-h'), document.getElementById('flow-steam-l')],
+            exhaust: [document.getElementById('flow-exhaust')],
+            water: [document.getElementById('flow-water')],
+            bypass: [document.getElementById('flow-bypass')],
+            power: [document.getElementById('flow-main-power-1'), document.getElementById('flow-main-power-2'), document.getElementById('flow-main-power-v')]
         };
-        const flames = [document.getElementById('combustion-flame'), document.getElementById('combustion-2d')];
+        const flames = [document.getElementById('combustion-flame1'), document.getElementById('combustion-flame2')];
         const sfcLight = document.getElementById('sfc-light');
+        const logicIndicators = {
+            sfc: document.getElementById('logic-sfc-ok'),
+            gen: document.getElementById('logic-gen-ok'),
+            oil: document.getElementById('logic-oil-ok'),
+            gas: document.getElementById('logic-gas-ok'),
+            rpm_ign: document.getElementById('logic-rpm-ign-ok'),
+            rpm_min: document.getElementById('logic-rpm-min-ok'),
+            fire: document.getElementById('logic-fire-ok'),
+        };
+        const logicLines = {
+            sfc: document.getElementById('line-sfc'),
+            gen: document.getElementById('line-gen'),
+            oil: document.getElementById('line-oil'),
+            gas: document.getElementById('line-gas'),
+            rpm_ign: document.getElementById('line-rpm-ign'),
+            rpm_min: document.getElementById('line-rpm-min'),
+            fire: document.getElementById('line-fire'),
+            output: document.getElementById('line-output'),
+        };
+        const andGate = document.getElementById('logic-and-gate');
+        const andText = document.getElementById('logic-and-text');
+        const outputBox = document.getElementById('logic-output-box');
 
         let cycleState = 'stopped';
         let rpmInterval;
+        let currentRpm = 0;
 
         function updateAnimations(speed) {
             rotors.forEach(r => { if(r) r.style.animationDuration = `${2 / speed}s` });
@@ -589,87 +582,149 @@
 
         function updateDisplay(power, rpm) {
             rpmOutput.textContent = `${Math.round(rpm)} RPM`;
-            const minPower = 0.3; // 30%
+            const minPower = 0.3; 
             const powerRange = 1.0 - minPower;
             const effectivePower = (power - minPower) / powerRange;
             
-            const totalPower = 870 * (power > minPower ? effectivePower : 0);
+            const totalPower = 870 * (power >= minPower ? effectivePower : 0);
             powerOutput.textContent = `${totalPower.toFixed(0)} MW`;
 
-            const temp = 580 + 70 * (power > minPower ? effectivePower : 0);
+            const temp = 580 + 70 * (power >= minPower ? effectivePower : 0);
             tempOutput.textContent = `${temp.toFixed(0)} °C`;
         }
         
-        function setFlowsDisplay(state) {
-            Object.values(flows).flat().forEach(el => { if(el) el.style.display = 'none'; });
-            flames.forEach(f => { if(f) f.style.display = 'none'; f.classList.remove('combustion-effect'); });
-            if (sfcLight) sfcLight.classList.remove('active');
+        function updateLogicDiagram() {
+            const green = 'var(--green-400)';
+            const gray = 'var(--gray-500)';
+            
+            const conditions = {
+                sfc: cycleState === 'starting' || cycleState === 'igniting',
+                gen: cycleState === 'starting' || cycleState === 'igniting' || cycleState === 'running',
+                oil: cycleState === 'starting' || cycleState === 'igniting' || cycleState === 'running',
+                fire: cycleState === 'starting' || cycleState === 'igniting' || cycleState === 'running',
+                gas: cycleState === 'igniting' || cycleState === 'running',
+                rpm_ign: currentRpm >= 1400,
+                rpm_min: currentRpm >= 2700
+            };
 
-            if (state === 'starting') {
-                flows.sfc.forEach(el => { if(el) el.style.display = 'block'; });
-                if(sfcLight) sfcLight.classList.add('active');
-            } else if (state === 'running') {
-                Object.values(flows).flat().forEach(el => { if(el && !flows.sfc.includes(el)) el.style.display = 'block'; });
-                flames.forEach(f => { if(f) { f.style.display = 'block'; f.classList.add('combustion-effect'); }});
+            Object.keys(logicIndicators).forEach(key => {
+                const indicator = logicIndicators[key];
+                const line = logicLines[key];
+                if (indicator && line) {
+                    const isActive = conditions[key] || false;
+                    indicator.style.fill = isActive ? green : gray;
+                    line.style.stroke = isActive ? green : gray;
+                }
+            });
+
+            const allInputsActive = Object.values(conditions).every(c => c);
+            if (allInputsActive) {
+                andGate.style.stroke = green;
+                andText.style.fill = green;
+                logicLines.output.style.stroke = green;
+                outputBox.style.fill = green;
+            } else {
+                andGate.style.stroke = gray;
+                andText.style.fill = gray;
+                logicLines.output.style.stroke = gray;
+                outputBox.style.fill = '#334155';
             }
         }
 
+        function setFlowsDisplay() {
+            const show = (elements) => elements.forEach(el => { if(el) el.style.display = 'block'; });
+            const hide = (elements) => elements.forEach(el => { if(el) el.style.display = 'none'; });
+
+            hide(Object.values(flows).flat());
+            flames.forEach(f => { if(f) {f.style.display = 'none'; f.classList.remove('combustion-effect');} });
+            if (sfcLight) sfcLight.classList.remove('active');
+
+            if (cycleState === 'starting' || cycleState === 'igniting') {
+                show(flows.sfc);
+                if(sfcLight) sfcLight.classList.add('active');
+            }
+            if (cycleState === 'igniting' || cycleState === 'running') {
+                show(flows.gas);
+                flames.forEach(f => { if(f) { f.style.display = 'block'; f.classList.add('combustion-effect'); }});
+            }
+             if (cycleState === 'running' && currentRpm >= 3000) {
+                 show(flows.steam);
+                 show(flows.exhaust);
+                 show(flows.water);
+                 show(flows.power);
+                 hide(flows.bypass);
+            } else if ((cycleState === 'igniting' || cycleState === 'running') && currentRpm < 3000) {
+                 show(flows.bypass);
+            }
+        }
 
         function startCycle() {
             if (cycleState !== 'stopped') return;
             cycleState = 'starting';
             startBtn.disabled = true;
             statusText.textContent = 'Arrancando (SFC)...';
-            statusText.classList.replace('text-yellow-400', 'text-blue-400');
-            setFlowsDisplay('starting');
             
             rotors.forEach(r => { if(r) r.classList.add('spin'); });
-            updateAnimations(0.5); 
-
-            let currentRpm = 0;
-            const targetRpm = 1700;
-            const rampUpTime = 4000;
-            const steps = 100;
+            
+            currentRpm = 0;
+            const ignitionRpm = 1400;
+            const minTechnicalRpm = 2700;
+            const syncRpm = 3000;
+            
+            const rampUpTime = 8000; // Total time to sync
+            const steps = 200;
             const stepTime = rampUpTime / steps;
-            const rpmStep = targetRpm / steps;
-
+            const rpmStep = syncRpm / steps;
+            
             rpmInterval = setInterval(() => {
                 currentRpm += rpmStep;
-                if (currentRpm >= targetRpm) {
-                    currentRpm = targetRpm;
+
+                if (cycleState === 'starting' && currentRpm >= ignitionRpm) {
+                    cycleState = 'igniting';
+                    statusText.textContent = 'Ignición...';
+                }
+                
+                if (cycleState === 'igniting' && currentRpm >= minTechnicalRpm) {
+                    statusText.textContent = 'A Mínimo Técnico';
+                    powerSlider.disabled = false;
+                    powerSlider.value = 30;
+                }
+
+                if (currentRpm >= syncRpm) {
+                    currentRpm = syncRpm;
                     clearInterval(rpmInterval);
                     
                     cycleState = 'running';
-                    statusText.textContent = 'Mínimo Técnico';
-                    statusText.classList.replace('text-blue-400', 'text-green-400');
-                    powerSlider.disabled = false;
-                    powerSlider.value = 30;
+                    statusText.textContent = 'Sincronizado a Red';
                     
                     startBtn.textContent = "Detener Secuencia";
                     startBtn.classList.replace('bg-green-600', 'bg-red-600');
                     startBtn.classList.replace('hover:bg-green-500', 'hover:bg-red-500');
                     startBtn.disabled = false;
-                    
-                    setFlowsDisplay('running');
-                    const animationSpeed = 0.57; // Speed for 1700 RPM (3000*0.57)
-                    updateAnimations(animationSpeed);
-                    updateDisplay(0.3, currentRpm);
-                } else {
-                    updateDisplay(0, currentRpm);
                 }
+
+                const animationProgress = currentRpm / syncRpm;
+                updateAnimations(0.3 + animationProgress * 0.7); 
+                updateDisplay(powerSlider.value / 100, currentRpm);
+                updateLogicDiagram();
+                setFlowsDisplay();
+
             }, stepTime);
         }
+
 
         function stopCycle() {
             if (cycleState === 'stopped') return;
             clearInterval(rpmInterval);
             cycleState = 'stopped';
+            currentRpm = 0;
             startBtn.disabled = true;
             powerSlider.disabled = true;
             powerSlider.value = 30;
             statusText.textContent = 'Deteniendo...';
-            statusText.classList.replace('text-green-400', 'text-yellow-400');
-            setFlowsDisplay('stopped');
+            
+            setFlowsDisplay();
+            updateLogicDiagram();
             rotors.forEach(r => { if(r) r.classList.remove('spin'); });
             updateDisplay(0, 0);
             
@@ -689,12 +744,7 @@
         powerSlider.addEventListener('input', (e) => {
             if (cycleState !== 'running') return;
             const powerLevel = e.target.value / 100;
-            const minRpm = 1700, maxRpm = 3000;
-            const currentRpm = minRpm + (maxRpm - minRpm) * ((powerLevel - 0.3) / 0.7);
-            
-            const animationSpeed = 0.57 + (1.0 - 0.57) * ((powerLevel - 0.3) / 0.7);
-            updateAnimations(animationSpeed);
-            updateDisplay(powerLevel, currentRpm);
+            updateDisplay(powerLevel, 3000);
         });
 
         // Tab logic for simulators
