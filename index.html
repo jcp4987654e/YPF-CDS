@@ -119,7 +119,7 @@
         /* --- Simulador Ciclo Combinado --- */
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .spin { animation: spin 2s linear infinite; transform-origin: center; }
-        .flow-path { stroke-dasharray: 10; animation: dash 1s linear infinite; }
+        .flow-path { stroke-dasharray: 10; animation: dash 1s linear infinite; fill: none; }
         @keyframes dash { to { stroke-dashoffset: -20; } }
         #sfc-light.active { animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
@@ -348,8 +348,8 @@
                                     <path id="flow-sfc-power2" d="M90 320 H 150 V 250" stroke="#a5b4fc" stroke-width="2" style="display:none;"/>
                                     <path id="flow-bypass" class="flow-path" d="M230 70 H 240 V 235 H 250" stroke="cyan" stroke-width="2" stroke-dasharray="5,5" style="display:none;"/>
 
-                                    <path id="flow-main-power-1" d="M180 70 H 550 V 110" stroke="#facc15" stroke-width="1.5" style="display:none;"/>
-                                    <path id="flow-main-power-2" d="M180 270 H 550 V 180" stroke="#facc15" stroke-width="1.5" style="display:none;"/>
+                                    <path id="flow-main-power-1" d="M180 70 H 500 V 160" stroke="#facc15" stroke-width="1.5" style="display:none;"/>
+                                    <path id="flow-main-power-2" d="M180 270 H 500 V 160" stroke="#facc15" stroke-width="1.5" style="display:none;"/>
                                     <path id="flow-main-power-v" d="M500 160 H 520" stroke="#facc15" stroke-width="1.5" style="display:none;"/>
                                 </svg>
                             </div>
@@ -357,10 +357,15 @@
                              <div id="tab-sim-logica" class="tab-content">
                                 <svg id="logic-diagram" viewBox="0 0 450 300" class="bg-slate-900 rounded-lg w-full">
                                      <defs>
-                                        <g id="and-gate-logic">
-                                            <path d="M 0 0 H 25 C 45 0 45 60 25 60 H 0 Z" stroke-width="2" />
-                                            <circle cx="0" cy="5" r="1.5" /><circle cx="0" cy="15" r="1.5" /><circle cx="0" cy="25" r="1.5" /><circle cx="0" cy="35" r="1.5" /><circle cx="0" cy="45" r="1.5" /><circle cx="0" cy="55" r="1.5" />
-                                            <circle cx="40" cy="30" r="1.5" />
+                                        <g id="and-gate-logic" fill="none" stroke="currentColor">
+                                            <path d="M 0 0 H 25 C 45 0 45 60 25 60 H 0 Z" stroke-width="2"/>
+                                            <circle cx="0" cy="5" r="1.5"/>
+                                            <circle cx="0" cy="15" r="1.5"/>
+                                            <circle cx="0" cy="25" r="1.5"/>
+                                            <circle cx="0" cy="35" r="1.5"/>
+                                            <circle cx="0" cy="45" r="1.5"/>
+                                            <circle cx="0" cy="55" r="1.5"/>
+                                            <circle cx="40" cy="30" r="1.5"/>
                                         </g>
                                     </defs>
                                     <!-- Entradas -->
