@@ -1,992 +1,678 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Central Dock Sud - YPF Luz</title>
+    <title>PP Instituto 13 de Julio - Central Dock Sud</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Teko:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        school: {
+                            DEFAULT: '#8b1e1e', // Rojo institucional
+                            dark: '#5a1212'
+                        },
+                        ypf: {
+                            blue: '#003366',
+                            light: '#00A3E0'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Manrope', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --sky-400: #38bdf8;
-            --slate-800: #1e293b;
-            --slate-900: #0f172a;
-            --green-400: #4ade80;
-            --yellow-400: #facc15;
-            --gray-500: #6b7280;
-            --red-500: #ef4444;
-        }
-        body {
-            font-family: 'Roboto Mono', monospace;
-            background-color: var(--slate-900);
-            color: #EAEAEA;
-        }
-        .section-title {
-            font-family: 'Teko', sans-serif;
-            font-size: 3.5rem;
-            letter-spacing: 1px;
-            color: #f8fafc;
-        }
-        .section-divider {
-            min-height: 40vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            position: relative;
-        }
-        .section-divider::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(2px);
-        }
-        .section-divider h1 {
-            position: relative;
-            z-index: 1;
-        }
-        .card {
-            background-color: var(--slate-800);
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 15px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s, border-color 0.3s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(56, 189, 248, 0.1);
-            border-color: var(--sky-400);
-        }
-        .card-title {
-            color: #7dd3fc;
-            margin-bottom: 15px;
-            font-size: 1.25rem;
-            font-weight: bold;
-        }
-        .nav-link {
-            transition: color 0.3s, border-bottom-color 0.3s;
-            border-bottom: 2px solid transparent;
-        }
-        .nav-link:hover, .nav-link.active {
-            color: var(--sky-400);
-            border-bottom-color: var(--sky-400);
-        }
+        body { overflow: hidden; }
         
-        /* --- Estilos Modo Presentación --- */
-        .presentation-nav { transition: opacity 0.3s ease-in-out; }
-        body.presentation-mode main > section {
-            display: none; opacity: 0; transform: translateY(30px);
-            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+        .slide {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100vh;
+            opacity: 0; visibility: hidden; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(30px); display: flex; flex-direction: column;
+            justify-content: center; padding: 1.5rem 3rem; background-color: #f8fafc; z-index: 10;
         }
-        body.presentation-mode main > section.active-slide {
-            display: flex; flex-direction: column; justify-content: center;
-            min-height: calc(100vh - 120px); opacity: 1; transform: translateY(0);
+        .slide.active { opacity: 1; visibility: visible; transform: translateY(0); z-index: 20; }
+        
+        /* UI Elements */
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .text-gradient { background-clip: text; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(to right, #003366, #00A3E0); }
+        
+        /* Fotos Estilo Polaroid con Animación */
+        .photo-frame {
+            background: white; padding: 12px 12px 40px 12px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease; animation: float 6s ease-in-out infinite;
         }
-        body.presentation-mode #main-header { opacity: 0; pointer-events: none; }
-        body.presentation-mode .section-divider { display: none; } 
-
-        /* --- Animaciones y Componentes --- */
-        .fade-in-section { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
-        .fade-in-section.is-visible { opacity: 1; transform: translateY(0); }
+        .photo-frame:hover { transform: scale(1.05) rotate(0deg) !important; z-index: 50; animation-play-state: paused; }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(-2deg); } }
+        @keyframes float-rev { 0%, 100% { transform: translateY(0) rotate(2deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
         
-        .timeline-container { position: relative; padding: 2rem 0; margin: 0 auto; max-width: 800px; }
-        .timeline-container::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background-color: var(--slate-800); border-radius: 2px; }
-        .timeline-block { position: relative; width: 50%; padding: 1rem 2rem; box-sizing: border-box; }
-        .timeline-block:nth-child(odd) { left: 0; }
-        .timeline-block:nth-child(even) { left: 50%; }
-        .timeline-content { background-color: var(--slate-800); padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .timeline-date { position: absolute; top: 50%; transform: translateY(-50%); width: 80px; height: 80px; border-radius: 50%; background-color: var(--sky-400); border: 4px solid var(--slate-900); color: var(--slate-900); font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; z-index: 10; }
-        .timeline-block:nth-child(odd) .timeline-date { right: -40px; }
-        .timeline-block:nth-child(even) .timeline-date { left: -40px; }
-        
-        .tab-btn.active { background-color: var(--sky-400); color: var(--slate-900); }
-        .tab-content { display: none; animation: fadeIn 0.5s; } 
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .photo-placeholder { width: 100%; height: 300px; background-color: #cbd5e1; display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: bold; object-fit: cover; }
 
-        .cover-overlay { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.5s ease-in-out; display: flex; flex-direction: column; justify-content: center; align-items: center; background-size: cover; background-position: center; border-radius: 12px; }
-        .cover-overlay.active { opacity: 1; pointer-events: auto; }
-        .cover-overlay .overlay-backdrop { position: absolute; inset: 0; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); border-radius: 12px; }
-        .cover-overlay .overlay-content { position: relative; z-index: 10; text-align: center; }
-        .integrante-btn:hover { background-color: var(--sky-400); color: var(--slate-900); }
-
-        /* --- Simulador Ciclo Combinado --- */
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* Simulador Animaciones */
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         .spin { animation: spin 2s linear infinite; transform-origin: center; transform-box: fill-box; }
+        
         .flow-path { stroke-dasharray: 10; animation: dash 1s linear infinite; }
         @keyframes dash { to { stroke-dashoffset: -20; } }
-        #sfc-light.active { animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         
-        /* Keyframe para la animación de color de la llama */
-        @keyframes flameColor {
-            0% { fill: orange; }
-            50% { fill: var(--red-500); }
-            100% { fill: orange; }
-        }
-
-        @keyframes combustion { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+        .combustion-effect { animation: combustion 0.2s infinite alternate; transform-box: fill-box; transform-origin: center; }
+        @keyframes combustion { from { opacity: 0.8; transform: scale(0.95); fill: #f97316; } to { opacity: 1; transform: scale(1.05); fill: #ef4444; } }
         
-        /* Se aplican ambas animaciones (escala y color) a la llama */
-        .combustion-effect { 
-            animation: combustion 1s infinite, flameColor 1.5s infinite; 
-            transform-origin: center; /* Asegura que la escala ocurra desde el centro */
-        }
+        .indicator-on { fill: #22c55e !important; filter: drop-shadow(0 0 4px #22c55e); }
         
-        .logic-gate, .logic-line, .logic-text, .logic-indicator, #logic-output-box { transition: all 0.4s ease-in-out; }
-        #cc-diagram, #logic-diagram { background-color: transparent; }
     </style>
 </head>
-<body class="overflow-x-hidden">
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-school selection:text-white">
 
-    <!-- Controles Flotantes y Navegación -->
-    <div class="fixed top-4 right-4 z-[60] flex space-x-2">
-        <button id="play-presentation-btn" class="p-3 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-full shadow-lg hover:bg-slate-700 transition" title="Modo Presentación">
-            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            <svg id="stop-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden text-white"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+    <!-- Navegación -->
+    <div class="fixed bottom-6 right-6 z-50 flex gap-2">
+        <button onclick="prevSlide()" class="p-3 bg-white border border-slate-200 rounded-full shadow hover:bg-slate-100 text-slate-600 transition">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M5 15l7-7 7 7" /></svg>
         </button>
-        <button id="fullscreen-btn" class="p-3 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-full shadow-lg hover:bg-slate-700 transition" title="Pantalla Completa">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        <button onclick="nextSlide()" class="p-3 bg-school text-white rounded-full shadow hover:bg-school-dark transition">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
         </button>
     </div>
-    <div id="presentation-nav-prev" class="presentation-nav fixed left-4 top-1/2 -translate-y-1/2 z-[60] opacity-0 pointer-events-none">
-        <button class="p-4 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-full shadow-lg hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polyline points="15 18 9 12 15 6"></polyline></svg>
-        </button>
-    </div>
-    <div id="presentation-nav-next" class="presentation-nav fixed right-4 top-1/2 -translate-y-1/2 z-[60] opacity-0 pointer-events-none">
-        <button class="p-4 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-full shadow-lg hover:bg-slate-700 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </button>
-    </div>
+    
+    <!-- Barra Progreso -->
+    <div class="fixed top-0 left-0 h-1.5 bg-school z-50 transition-all duration-300" id="progress-bar" style="width: 0%"></div>
 
-    <!-- Header Fijo -->
-    <header id="main-header" class="bg-slate-900/80 backdrop-blur-sm border-b border-slate-700 sticky top-0 z-50 transition-opacity duration-300">
-        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <h1 class="text-xl md:text-2xl font-bold text-sky-400" style="font-family: 'Teko', sans-serif;">Central Dock Sud</h1>
-            <div class="hidden md:flex flex-wrap items-center justify-center space-x-4 lg:space-x-6">
-                 <a href="#caratula" class="nav-link font-semibold pb-1">Carátula</a>
-                 <a href="#fundamentos" class="nav-link font-semibold pb-1">Fundamentos</a>
-                 <a href="#historia" class="nav-link font-semibold pb-1">Historia</a>
-                 <a href="#tecnica" class="nav-link font-semibold pb-1">Simulador</a>
-                 <a href="#detalles-tecnicos" class="nav-link font-semibold pb-1">Detalles Técnicos</a>
-                 <a href="#mea" class="nav-link font-semibold pb-1">MEA</a>
-                 <a href="#generadores" class="nav-link font-semibold pb-1">Generadores</a>
-                 <a href="#control" class="nav-link font-semibold pb-1">Control</a>
-                 <a href="#seguridad" class="nav-link font-semibold pb-1">Seguridad</a>
-                 <a href="#conclusion" class="nav-link font-semibold pb-1">Conclusión</a>
-                 <a href="#galeria" class="nav-link font-semibold pb-1">Galería</a>
-            </div>
-            <button id="mobile-menu-button" class="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-400">
-                <div id="open-icon" class="w-6 h-0.5 bg-white mb-1.5 transition-transform duration-300"></div>
-                <div id="close-icon-part1" class="w-6 h-0.5 bg-white transition-transform duration-300"></div>
-            </button>
-        </nav>
-        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4"></div>
-    </header>
+    <main class="relative w-full h-screen">
 
-    <main class="container mx-auto px-6 py-8">
-        <!-- SECCIÓN 0: CARÁTULA INTERACTIVA -->
-        <section id="caratula">
-            <div id="caratula-card" class="card text-center fade-in-section relative overflow-hidden min-h-[70vh]">
-                <!-- Vista por Defecto -->
-                <div id="cover-default" class="cover-overlay active" style="background-image: url(https://media.licdn.com/dms/image/v2/C4D22AQFxSoWAWSqIww/feedshare-shrink_2048_1536/feedshare-shrink_2048_1536/0/1677239808407?e=2147483647&v=beta&t=4uMWrILP88hWe2mLuPsHZ0HEUU7SOiRAYlZcrc72Was);">
-                    <div class="overlay-backdrop"></div>
-                    <div class="overlay-content p-4">
-                        <div class="flex justify-center items-center space-x-8 mb-4">
-                            <img src="data:image/png;base64,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" class="h-16" alt="Logo YPF Luz">
-                            <img src="data:image/png;base64,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" class="h-12" alt="Logo CAMMESA">
-                        </div>
-                        <h1 class="section-title justify-center text-4xl md:text-5xl border-none">Central de Ciclo Combinado Dock Sud</h1>
-                        <p class="text-xl text-slate-300 mt-4">Análisis Técnico y Operativo en el Mercado Eléctrico Argentino</p>
-                        <hr class="my-6 border-slate-700">
-                        <h3 class="text-2xl text-sky-400 font-semibold mb-4">Integrantes</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-4">
-                            <!-- CORRECCIÓN: Se eliminó la clase 'integrante-btn' para quitar la interactividad -->
-                            <div class="bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Jesus Castellanos</div>
-                            <div class="bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Guillermo Paulosky</div>
-                            <div class="bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Joaquin Huaman</div>
-                            <div class="bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Luciano Roman</div>
-                            <div class="bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Nicolas Arguello</div>
-                            <div class="bg-slate-800 p-2 md:p-3 rounded-lg text-sm md:text-base">Lucas Cordero</div>
-                        </div>
-                        <!-- CORRECCIÓN: Se cambió el estilo para que no parezca un botón interactivo -->
-                        <div class="bg-slate-700 p-3 mt-4 rounded-lg font-bold w-full md:w-auto cursor-default">Equipo Completo: PP YPF DOCK SUD</div>
+        <!-- SLIDE 1: PORTADA -->
+        <section class="slide active">
+            <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-school text-white font-bold px-4 py-2 rounded text-sm tracking-widest uppercase shadow">Instituto 13 de Julio</div>
+                        <div class="bg-ypf-blue text-white font-bold px-4 py-2 rounded text-sm tracking-widest uppercase shadow">YPF Luz</div>
                     </div>
+                    
+                    <h1 class="font-display text-5xl md:text-6xl font-extrabold text-slate-900 leading-tight">
+                        Informe de Práctica <br>
+                        <span class="text-gradient">Profesionalizante</span>
+                    </h1>
+                    
+                    <p class="text-xl text-slate-600 border-l-4 border-school pl-6">
+                        Experiencia técnica y operativa en la <strong>Central Termoeléctrica Dock Sud</strong>.
+                        <br><span class="text-sm text-slate-400">Ciclo Lectivo 2025</span>
+                    </p>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Alumnos</p>
+                            <ul class="text-sm font-medium text-slate-700 space-y-1">
+                                <li>Jesus Castellanos</li>
+                                <li>Guillermo Paulosky</li>
+                                <li>Joaquin Huaman</li>
+                            </ul>
+                        </div>
+                        <div class="flex flex-col justify-end">
+                            <ul class="text-sm font-medium text-slate-700 space-y-1">
+                                <li>Luciano Roman</li>
+                                <li>Nicolas Arguello</li>
+                                <li>Lucas Cordero</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative h-full min-h-[400px] flex items-center justify-center">
+                    <div class="absolute inset-0 bg-blue-50 rounded-full opacity-60 blur-3xl"></div>
+                    <img src="https://media.licdn.com/dms/image/v2/C4D22AQFxSoWAWSqIww/feedshare-shrink_2048_1536/feedshare-shrink_2048_1536/0/1677239808407?e=2147483647&v=beta&t=4uMWrILP88hWe2mLuPsHZ0HEUU7SOiRAYlZcrc72Was" 
+                         class="relative rounded-lg shadow-2xl w-full h-80 object-cover border-4 border-white transform rotate-2 hover:rotate-0 transition duration-500">
                 </div>
             </div>
         </section>
 
-        <!-- DIVIDER 1 -->
-        <section class="section-divider fade-in-section" style="background-image: url('https://www.ypfluz.com/wp-content/uploads/2022/10/Dock-Sud-01-1.jpg');">
-            <h1 class="section-title border-none text-center">Fundamentos Termoeléctricos</h1>
-        </section>
-
-        <!-- SECCIÓN 1: FUNDAMENTOS -->
-        <section id="fundamentos">
-             <div class="card fade-in-section">
-                <p class="card-title">Conceptos Clave de Ciclos de Potencia</p>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div>
-                        <h3 class="text-2xl font-bold mb-2">Ciclo Brayton (Turbina de Gas - TG)</h3>
-                        <p class="mb-4">Base de las turbinas de gas (GT26). Convierte energía del combustible en trabajo mediante compresión, combustión y expansión de aire.</p>
-                        <img src="https://cdn.inspenet.com/IMG-2-ESP-Principios-y-caracteristicas-de-las-turbinas-de-gas-1024x403.webp" alt="Diagrama Brayton" class="mx-auto bg-white rounded p-2 clickable-image" data-title="Ciclo Brayton">
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-bold mb-2">Ciclo Rankine (Turbina de Vapor - TV)</h3>
-                        <p class="mb-4">Utiliza un cambio de fase (agua-vapor). En Dock Sud opera con 3 niveles de presión (alta, media y baja) y recalentamiento para maximizar la eficiencia.</p>
-                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilpkWMii96faQ4JIlT_3StyTgSAIof8oZSxNNyctu1YjtvFnSqtzs_OwFph-dUseYqaW3FNzQ4NcwpE-K1kegeXJYuLI6Tun9biSvR1bI2D1cmlaz3-TPizDRWW002zA7HLcP7W9F8TsIs/s1600/q.jpg" alt="Diagrama Rankine" class="mx-auto bg-white rounded p-2 clickable-image" data-title="Ciclo Rankine">
-                    </div>
+        <!-- SLIDE 2: EQUIPO (FOTOS) -->
+        <section class="slide">
+            <div class="max-w-7xl mx-auto w-full h-full flex flex-col justify-center">
+                <div class="text-center mb-10">
+                    <h2 class="font-display text-4xl font-bold text-slate-900">Nuestro Recorrido Institucional</h2>
+                    <p class="text-slate-600 mt-2 text-lg">Acompañados por directivos y referentes desde el primer día.</p>
                 </div>
-                <hr class="my-6 border-slate-700">
-                <h3 class="text-2xl font-bold mb-2 text-sky-300">Ciclo Combinado (Brayton + Rankine)</h3>
-                <p>La integración sinérgica de ambos. Se reutilizan los gases de escape calientes (~650°C) de las turbinas de gas para generar vapor en calderas de recuperación (HRSG). Este vapor alimenta una turbina de vapor, produciendo electricidad adicional sin quemar más combustible y elevando la eficiencia total por encima del 58%.</p>
-             </div>
-        </section>
 
-        <!-- DIVIDER 2 -->
-        <section class="section-divider fade-in-section" style="background-image: url('https://dockdelplata.com.ar/wp-content/uploads/2019/12/Dock-del-Plata-9.jpg');">
-            <h1 class="section-title border-none text-center">Historia y Evolución</h1>
-        </section>
+                <div class="grid md:grid-cols-2 gap-16 items-center px-12">
+                    <!-- Foto Inicio -->
+                    <div class="photo-frame">
+                        <!-- REEMPLAZAR SRC CON FOTO REAL -->
+                        <img src="https://via.placeholder.com/800x600/e2e8f0/64748b?text=FOTO+GRUPAL+INICIO" class="photo-placeholder" alt="Foto Inicio">
+                        <div class="text-center mt-4">
+                            <h3 class="font-bold text-slate-800 text-lg font-handwriting">El Comienzo</h3>
+                            <p class="text-xs text-slate-500">Bienvenida e Inducción en Planta</p>
+                        </div>
+                    </div>
 
-        <!-- SECCIÓN 2: HISTORIA INTERACTIVA -->
-        <section id="historia">
-             <div class="card fade-in-section">
-                <p class="card-title text-center">Línea de Tiempo de la Central</p>
-                <div class="timeline-container">
-                    <div class="timeline-block fade-in-section">
-                        <div class="timeline-date">1907</div>
-                        <div class="timeline-content">
-                            <h3 class="font-bold text-xl mb-2 text-sky-300">Nace la Usina</h3>
-                            <p>La CATE (Compañía Alemana Transatlántica de Electricidad) comienza las obras, proyectadas por AEG de Berlín.</p>
-                        </div>
-                    </div>
-                    <div class="timeline-block fade-in-section">
-                        <div class="timeline-date">1962</div>
-                        <div class="timeline-content">
-                            <h3 class="font-bold text-xl mb-2 text-sky-300">Era Estatal (SEGBA)</h3>
-                            <p>Tras un período de expansión y un incendio, la central es estatizada y operada por Servicios Eléctricos del Gran Buenos Aires.</p>
-                        </div>
-                    </div>
-                     <div class="timeline-block fade-in-section">
-                        <div class="timeline-date">1992</div>
-                        <div class="timeline-content">
-                            <h3 class="font-bold text-xl mb-2 text-sky-300">Privatización</h3>
-                            <p>Se privatiza Central Dock Sud S.A. En 1996, el grupo Endesa-Astra-Bridas inicia la modernización a Ciclo Combinado.</p>
-                        </div>
-                    </div>
-                     <div class="timeline-block fade-in-section">
-                        <div class="timeline-date">2001</div>
-                        <div class="timeline-content">
-                            <h3 class="font-bold text-xl mb-2 text-sky-300">Ciclo Combinado</h3>
-                            <p>Se pone en operación el nuevo Ciclo Combinado de 780MW. La Torre histórica es reinaugurada como Monumento.</p>
-                        </div>
-                    </div>
-                     <div class="timeline-block fade-in-section">
-                        <div class="timeline-date">2023</div>
-                        <div class="timeline-content">
-                            <h3 class="font-bold text-xl mb-2 text-sky-300">YPF Luz</h3>
-                            <p>YPF Luz adquiere el paquete accionario, opera la central y realiza un mantenimiento mayor para incrementar su capacidad y eficiencia.</p>
+                    <!-- Foto Cierre -->
+                    <div class="photo-frame" style="animation-name: float-rev; animation-delay: 1s;">
+                        <!-- REEMPLAZAR SRC CON FOTO REAL -->
+                        <img src="https://via.placeholder.com/800x600/003366/fff?text=FOTO+GRUPAL+CIERRE" class="photo-placeholder" alt="Foto Cierre">
+                        <div class="text-center mt-4">
+                            <h3 class="font-bold text-slate-800 text-lg font-handwriting">Misión Cumplida</h3>
+                            <p class="text-xs text-slate-500">Cierre de Prácticas</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        
-        <!-- DIVIDER 3 -->
-        <section class="section-divider fade-in-section" style="background-image: url('https://www.centraldockdsud.com.ar/sites/default/files/styles/flexslider_full/public/central_0.jpg?itok=yqK4-EaU');">
-            <h1 class="section-title border-none text-center">Simulador Interactivo del Ciclo</h1>
-        </section>
 
-        <!-- SECCIÓN TÉCNICA INTERACTIVA -->
-        <section id="tecnica">
-            <div class="card fade-in-section">
-                <p class="card-title text-center">Simulador de Operación del Ciclo Combinado 2x1</p>
-                <!-- Tabs para el simulador -->
-                <div class="flex border-b border-slate-700 mb-4 justify-center" id="simulator-tabs">
-                    <button class="tab-btn active font-bold py-2 px-4 rounded-t-lg" data-target="tab-sim-bloques">Diagrama de Bloques 2x1</button>
-                    <button class="tab-btn font-bold py-2 px-4 rounded-t-lg" data-target="tab-sim-logica">Diagrama Lógico de Arranque</button>
+        <!-- SLIDE 3: ETAPA 1 - FORMACIÓN -->
+        <section class="slide">
+            <div class="max-w-6xl mx-auto w-full">
+                <div class="mb-8 border-l-8 border-school pl-6">
+                    <span class="text-sm font-bold text-slate-400 uppercase tracking-widest">Etapa 1</span>
+                    <h2 class="font-display text-4xl font-bold text-slate-900 mt-2">Formación General e Inducción</h2>
                 </div>
-
-                <div class="grid xl:grid-cols-5 gap-6">
-                    <div class="xl:col-span-4">
-                        <!-- Contenedor para las vistas del simulador -->
-                        <div id="simulator-views">
-                            <div id="tab-sim-bloques" class="tab-content active">
-                                <svg id="cc-diagram" viewBox="0 0 600 400" class="bg-slate-900 rounded-lg w-full">
-                                    <defs>
-                                        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fff"/></marker>
-                                        <path id="flame" d="M-2 5.5s-2.14-3.84-2.14-6.16c0-2.92 2.38-4.84 4.14-4.84 1.76 0 4.14 1.92 4.14 4.84C4.14 1.66 2 5.5 2 5.5z"/>
-                                    </defs>
-                                    
-                                    <!-- Componentes TG1 y TG2 -->
-                                    <g id="group-tg1"><rect x="20" y="50" width="80" height="40" fill="#334155" stroke="#7dd3fc" /><text x="35" y="75" fill="white" font-size="10">TG 1</text><g class="spin" id="tg1-rotor" transform="translate(60, 70)"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="white" stroke-width="1"/></g>
-                                        <use href="#flame" x="60" y="40" id="combustion-flame1" class="combustion-effect" style="display:none;" />
-                                    </g>
-                                    <g id="group-tg2"><rect x="20" y="250" width="80" height="40" fill="#334155" stroke="#7dd3fc" /><text x="35" y="275" fill="white" font-size="10">TG 2</text><g class="spin" id="tg2-rotor" transform="translate(60, 270)"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="white" stroke-width="1"/></g>
-                                        <use href="#flame" x="60" y="240" id="combustion-flame2" class="combustion-effect" style="display:none;" />
-                                    </g>
-                                    
-                                    <!-- Generadores TG -->
-                                    <g><rect x="120" y="50" width="60" height="40" fill="#334155" stroke="#e2e8f0"/><text x="135" y="75" fill="white" font-size="10">GEN 1</text></g>
-                                    <g><rect x="120" y="250" width="60" height="40" fill="#334155" stroke="#e2e8f0"/><text x="135" y="275" fill="white" font-size="10">GEN 2</text></g>
-                                    
-                                    <!-- HRSGs -->
-                                    <g><rect x="200" y="40" width="30" height="60" fill="#334155" stroke="#7dd3fc" /><text x="203" y="75" fill="white" font-size="10">HRSG1</text></g>
-                                    <g><rect x="200" y="240" width="30" height="60" fill="#334155" stroke="#7dd3fc" /><text x="203" y="275" fill="white" font-size="10">HRSG2</text></g>
-                                    
-                                    <!-- Componentes TV y GEN_V -->
-                                    <g><rect x="340" y="140" width="80" height="40" fill="#334155" stroke="#7dd3fc" /><text x="355" y="165" fill="white" font-size="10">TV</text><g class="spin" id="tv-rotor" transform="translate(380, 160)"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="white" stroke-width="1"/></g></g>
-                                    <g><rect x="440" y="140" width="60" height="40" fill="#334155" stroke="#e2e8f0"/><text x="450" y="165" fill="white" font-size="10">GEN V</text></g>
-                                    
-                                    <!-- Condensador y Agua -->
-                                    <g><rect x="340" y="220" width="80" height="30" fill="#334155" stroke="#7dd3fc" /><text x="345" y="240" fill="white" font-size="10">Condensador</text></g>
-                                    
-                                    <!-- Eléctrico -->
-                                    <g><rect x="30" y="320" width="60" height="30" fill="#334155" stroke="#a5b4fc" /><text x="50" y="340" fill="white" font-size="10">SFC</text><circle id="sfc-light" cx="75" cy="335" r="5" fill="var(--gray-500)"/></g>
-                                    <g><rect x="520" y="140" width="60" height="40" fill="#334155" stroke="#facc15"/><text x="525" y="165" fill="white" font-size="8">TFO Ppal</text></g>
-                                    
-                                    <!-- Flujos -->
-                                    <path id="flow-gas1" class="flow-path" d="M100 70 H 200" stroke="orange" stroke-width="2" style="display:none;" fill="none"/><path id="flow-gas2" class="flow-path" d="M100 270 H 200" stroke="orange" stroke-width="2" style="display:none;" fill="none"/>
-                                    <path id="flow-steam-h" class="flow-path" d="M230 70 H 310 C 325 70 325 150 340 150" stroke="cyan" stroke-width="2" style="display:none;" fill="none"/><path id="flow-steam-l" class="flow-path" d="M230 270 H 310 C 325 270 325 170 340 170" stroke="cyan" stroke-width="2" style="display:none;" fill="none"/>
-                                    <path id="flow-exhaust" class="flow-path" d="M380 180 V 220" stroke="lightblue" stroke-width="2" style="display:none;" fill="none"/>
-                                    <path id="flow-water" class="flow-path" d="M340 235 H 260 V 70 H 230 M260 235 V 270 H 230" stroke="blue" stroke-width="2" style="display:none;" fill="none"/>
-                                    <path id="flow-sfc-power1" d="M 60 320 V 70 H 120" stroke="#a5b4fc" stroke-width="2" style="display:none;" fill="none"/>
-                                    <path id="flow-sfc-power2" d="M 60 320 V 270 H 120" stroke="#a5b4fc" stroke-width="2" style="display:none;" fill="none"/>
-                                    <path id="flow-bypass" class="flow-path" d="M230 70 H 260 V 225 H 340" stroke="cyan" stroke-width="2" stroke-dasharray="5,5" style="display:none;" fill="none"/>
-                                    <path id="flow-bypass2" class="flow-path" d="M230 270 H 260 V 225 H 340" stroke="cyan" stroke-width="2" stroke-dasharray="5,5" style="display:none;" fill="none"/>
-
-                                    <line id="flow-main-power-1" x1="180" y1="70" x2="550" y2="70" stroke-dasharray="5,5" stroke="var(--yellow-400)" stroke-width="1.5" style="display:none;" fill="none"/>
-                                    <line id="flow-main-power-2" x1="180" y1="270" x2="550" y2="270" stroke-dasharray="5,5" stroke="var(--yellow-400)" stroke-width="1.5" style="display:none;" fill="none"/>
-                                    <line id="flow-main-power-v" x1="500" y1="160" x2="520" y2="160" stroke-dasharray="5,5" stroke="var(--yellow-400)" stroke-width="1.5" style="display:none;" fill="none"/>
-                                    <line class="power-line" x1="550" y1="70" x2="550" y2="140" stroke-dasharray="5,5" stroke="var(--yellow-400)" stroke-width="1.5" style="display:none;" fill="none"/>
-                                    <line class="power-line" x1="550" y1="270" x2="550" y2="180" stroke-dasharray="5,5" stroke="var(--yellow-400)" stroke-width="1.5" style="display:none;" fill="none"/>
-                                </svg>
+                
+                <div class="grid md:grid-cols-2 gap-12 items-start">
+                    <div class="space-y-6">
+                        <div class="card p-6 border-l-4 border-ypf-blue">
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Visión Sistémica</h3>
+                            <p class="text-slate-600 text-sm">
+                                Recibimos una capacitación integral sobre el funcionamiento de la planta. 
+                                Analizamos <b>planos P&ID</b> y <b>diagramas unifilares</b>, conectando la teoría escolar con la documentación real de ingeniería.
+                            </p>
+                        </div>
+                        <div class="card p-6 border-l-4 border-red-500">
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Política y Seguridad</h3>
+                            <p class="text-slate-600 text-sm">
+                                Entendimos la estructura jerárquica y el marco normativo.
+                                El concepto clave fue el <b>Stop Work Authority</b>: la autoridad para detener cualquier tarea insegura.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Historia -->
+                    <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Evolución Histórica
+                        </h3>
+                        <div class="relative pl-6 border-l-2 border-slate-200 space-y-8">
+                            <div class="relative">
+                                <span class="absolute -left-[31px] bg-slate-800 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ring-4 ring-white">07</span>
+                                <h4 class="font-bold text-ypf-blue">1907 - CATE</h4>
+                                <p class="text-xs text-slate-500 mt-1">Nace la Usina (Compañía Alemana Transatlántica).</p>
                             </div>
-                           
-                             <div id="tab-sim-logica" class="tab-content">
-                                 <svg id="logic-diagram" viewBox="0 0 450 300" class="bg-slate-900 rounded-lg w-full">
-                                     <defs>
-                                         <g id="and-gate-logic">
-                                             <path d="M 0 0 H 25 C 45 0 45 70 25 70 H 0 Z" stroke-width="2" />
-                                             <circle cx="0" cy="5" r="1.5" /><circle cx="0" cy="15" r="1.5" /><circle cx="0" cy="25" r="1.5" /><circle cx="0" cy="35" r="1.5" /><circle cx="0" cy="45" r="1.5" /><circle cx="0" cy="55" r="1.5" /><circle cx="0" cy="65" r="1.5" />
-                                             <circle cx="40" cy="35" r="1.5" />
-                                         </g>
-                                     </defs>
-                                     <!-- Entradas -->
-                                     <g transform="translate(20 20)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-sfc-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">SFC Disponible</text></g>
-                                     <g transform="translate(20 55)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-gen-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">GEN Permisivos OK</text></g>
-                                     <g transform="translate(20 90)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-oil-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">Presión Aceite OK</text></g>
-                                     <g transform="translate(20 125)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-gas-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">Combustible OK</text></g>
-                                     <g transform="translate(20 160)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-rpm-ign-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">Velocidad > 1400 RPM</text></g>
-                                     <g transform="translate(20 195)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-rpm-min-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">Velocidad > 2700 RPM</text></g>
-                                     <g transform="translate(20 230)"><rect width="130" height="25" rx="5" fill="#334155"/><circle class="logic-indicator" id="logic-fire-ok" cx="10" cy="12.5" r="5" fill="var(--gray-500)"/><text x="25" y="17.5" fill="white" font-size="10">Sist. Incendio OK</text></g>
-                                     
-                                     <!-- Puerta AND -->
-                                     <g transform="translate(220 105)">
-                                         <use href="#and-gate-logic" id="logic-and-gate" class="logic-gate" stroke="var(--gray-500)" fill="none"/>
-                                         <text x="10" y="39" font-size="12" id="logic-and-text" class="logic-text" fill="var(--gray-500)">&</text>
-                                     </g>
-                                     
-                                     <!-- Salida -->
-                                      <g transform="translate(320 122.5)"><rect width="110" height="25" rx="5" id="logic-output-box" fill="#334155"/><text x="5" y="17.5" fill="white" font-size="10">Permiso Arranque</text></g>
-                                     
-                                     <path id="line-sfc" class="logic-line" d="M 150 32.5 H 200 C 210 32.5 210 110 220 110" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
-                                     <path id="line-gen" class="logic-line" d="M 150 67.5 H 200 C 210 67.5 210 120 220 120" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
-                                     <path id="line-oil" class="logic-line" d="M 150 102.5 H 200 C 210 102.5 210 130 220 130" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
-                                     <path id="line-gas" class="logic-line" d="M 150 137.5 H 200 C 210 137.5 210 140 220 140" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
-                                     <path id="line-rpm-ign" class="logic-line" d="M 150 172.5 H 200 C 210 172.5 210 150 220 150" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
-                                     <path id="line-rpm-min" class="logic-line" d="M 150 207.5 H 200 C 210 207.5 210 160 220 160" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
-                                     <path id="line-fire" class="logic-line" d="M 150 242.5 H 200 C 210 242.5 210 170 220 170" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
-                                     <path id="line-output" class="logic-line" d="M 260 140 H 320" stroke="var(--gray-500)" fill="none" stroke-width="2"/>
-                                 </svg>
-                             </div>
+                            <div class="relative">
+                                <span class="absolute -left-[31px] bg-slate-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ring-4 ring-white">62</span>
+                                <h4 class="font-bold text-ypf-blue">1962 - SEGBA</h4>
+                                <p class="text-xs text-slate-500 mt-1">Era estatal. Nuestra escuela hermana comparte este origen.</p>
+                            </div>
+                            <div class="relative">
+                                <span class="absolute -left-[31px] bg-ypf-light text-white w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ring-4 ring-white">01</span>
+                                <h4 class="font-bold text-ypf-blue">2001 - Ciclo Combinado</h4>
+                                <p class="text-xs text-slate-500 mt-1">Modernización tecnológica. Se instala el ciclo 2x1.</p>
+                            </div>
+                            <div class="relative">
+                                <span class="absolute -left-[31px] bg-ypf-blue text-white w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ring-4 ring-white">23</span>
+                                <h4 class="font-bold text-ypf-blue">Actualidad - YPF Luz</h4>
+                                <p class="text-xs text-slate-500 mt-1">Gestión enfocada en eficiencia y capacidad (870 MW).</p>
+                            </div>
                         </div>
                     </div>
-                    <!-- Panel de control unificado -->
-                    <div class="xl:col-span-1">
-                        <div class="bg-slate-800 p-4 rounded-lg h-full flex flex-col justify-between">
-                            <div>
-                                <h4 class="card-title">Controles de Simulación</h4>
-                                <button id="start-cycle-btn" class="w-full bg-green-600 hover:bg-green-500 font-bold py-2 px-4 rounded-lg mb-4 transition-colors">Iniciar Secuencia</button>
-                                <label for="power-slider" class="block text-sm font-medium">Potencia TG (%)</label>
-                                <input type="range" id="power-slider" min="30" max="100" value="30" class="w-full h-2 rounded-lg appearance-none cursor-pointer" disabled>
-                            </div>
-                            <div>
-                                <h4 class="card-title mt-4">Datos en Tiempo Real</h4>
-                                <div class="space-y-2 text-sm">
-                                    <p>Estado: <span id="status-text" class="font-bold text-yellow-400">Detenido</span></p>
-                                    <p>Velocidad Eje: <span id="rpm-output" class="font-bold text-sky-400">0 RPM</span></p>
-                                    <p>Potencia Total: <span id="power-output" class="font-bold text-sky-400">0 MW</span></p>
-                                    <p>Temp. Gases Escape: <span id="temp-output" class="font-bold text-orange-400">25 °C</span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: ETAPA 2 - TALLERES -->
+        <section class="slide">
+            <div class="max-w-7xl mx-auto w-full">
+                <div class="mb-8 border-l-8 border-school pl-6">
+                    <span class="text-sm font-bold text-slate-400 uppercase tracking-widest">Etapa 2</span>
+                    <h2 class="font-display text-4xl font-bold text-slate-900 mt-2">Talleres de Mantenimiento</h2>
+                    <p class="text-slate-600 mt-2">Donde la teoría técnica se encuentra con la herramienta.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 h-[60vh]">
+                    <!-- Mecánica -->
+                    <div class="card p-0 overflow-hidden flex flex-col group hover:shadow-xl transition duration-300">
+                        <div class="bg-orange-50 p-6 border-b border-orange-100">
+                            <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                                <span class="text-orange-500 text-3xl">⚙</span> Mantenimiento Mecánico
+                            </h3>
+                        </div>
+                        <div class="p-8 flex-grow flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <div class="flex gap-4 items-start">
+                                    <div class="bg-orange-100 p-2 rounded text-orange-600 font-bold text-xs mt-1">TEORÍA</div>
+                                    <p class="text-sm text-slate-600">Estudio de <b>Turbinas GT26</b>, cámaras de combustión y cojinetes.</p>
+                                </div>
+                                <div class="flex gap-4 items-start">
+                                    <div class="bg-slate-800 p-2 rounded text-white font-bold text-xs mt-1">PRÁCTICA</div>
+                                    <ul class="text-sm text-slate-600 space-y-1">
+                                        <li>• Uso de <b>micrómetros y calibres</b>.</li>
+                                        <li>• Protocolos de trazabilidad (FME).</li>
+                                        <li>• Mantenimiento de válvulas.</li>
+                                    </ul>
                                 </div>
                             </div>
+                            <img src="https://www.ansaldoenergia.com/fileadmin/hotspots/gt26-step-3-hotspot-3.png" class="h-32 object-contain mx-auto mix-blend-multiply opacity-80 mt-4">
+                        </div>
+                    </div>
+
+                    <!-- Eléctrica -->
+                    <div class="card p-0 overflow-hidden flex flex-col group hover:shadow-xl transition duration-300">
+                        <div class="bg-blue-50 p-6 border-b border-blue-100">
+                            <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                                <span class="text-blue-500 text-3xl">⚡</span> Mantenimiento Eléctrico
+                            </h3>
+                        </div>
+                        <div class="p-8 flex-grow flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <div class="flex gap-4 items-start">
+                                    <div class="bg-blue-100 p-2 rounded text-blue-600 font-bold text-xs mt-1">TEORÍA</div>
+                                    <p class="text-sm text-slate-600">Generadores (19kV, H2), Excitación Estática y Transformadores.</p>
+                                </div>
+                                <div class="flex gap-4 items-start">
+                                    <div class="bg-slate-800 p-2 rounded text-white font-bold text-xs mt-1">PRÁCTICA</div>
+                                    <ul class="text-sm text-slate-600 space-y-1">
+                                        <li>• Intervención en <b>CCM</b>.</li>
+                                        <li>• Calibración de actuadores.</li>
+                                        <li>• Análisis de lógica PLC y cableado.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <img src="https://blog.guroo.com.ar/wp-content/uploads/2019/12/esquema_diagrama_unifilar.png" class="h-32 object-contain mx-auto mix-blend-multiply opacity-80 mt-4">
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="detalles-tecnicos" class="fade-in-section">
-            <h1 class="section-title">Detalles Técnicos del Ciclo Combinado</h1>
-            <div class="card">
-                <p class="text-sm italic text-gray-400 mb-4">Nota de fuente: salvo indicación contraria, los datos numéricos finos de esta sección provienen de apuntes manuscritos y diagramas provistos (observaciones de campo y material de capacitación interna).</p>
+        <!-- SLIDE 5: ETAPA 3 - OPERACIONES -->
+        <section class="slide">
+            <div class="max-w-7xl mx-auto w-full">
+                <div class="mb-8 border-l-8 border-school pl-6">
+                    <span class="text-sm font-bold text-slate-400 uppercase tracking-widest">Etapa Final</span>
+                    <h2 class="font-display text-4xl font-bold text-slate-900 mt-2">Sala de Operaciones</h2>
+                    <p class="text-slate-600 mt-2">El cerebro de la planta, donde todo converge.</p>
+                </div>
 
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <div class="card p-8 shadow-lg mb-6">
+                            <h3 class="text-2xl font-bold text-slate-800 mb-4">Experiencia en Sala de Control</h3>
+                            <ul class="space-y-4 text-slate-600">
+                                <li class="flex items-start gap-3">
+                                    <span class="text-green-500 font-bold text-xl">✓</span>
+                                    <p><b>Monitoreo SCADA/DCS:</b> Visualización en tiempo real de más de 10,000 señales críticas.</p>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="text-green-500 font-bold text-xl">✓</span>
+                                    <p><b>Arranque y Sincronismo:</b> Seguimiento de la secuencia SFC -> Barrido -> Ignición -> Red.</p>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="text-green-500 font-bold text-xl">✓</span>
+                                    <p><b>Gestión de Prioridades:</b> Diferenciación entre alarmas críticas y eventos informativos.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <p class="text-sm text-slate-500 italic bg-slate-100 p-4 rounded border-l-4 border-slate-400">
+                            "Fue impactante ver cómo desde unas pantallas se controla la potencia que abastece a miles de hogares."
+                        </p>
+                    </div>
+                    
+                    <div class="relative">
+                        <div class="absolute -inset-4 bg-gradient-to-r from-blue-100 to-green-100 rounded-full blur-2xl opacity-50"></div>
+                        <img src="https://media.ambito.com/p/83d4047341c6ed1f7e1574ada433d847/adjuntos/239/imagenes/042/538/0042538760/ypf-jpeg.jpeg" class="relative rounded-lg shadow-2xl w-full border-4 border-white transform hover:scale-105 transition duration-500">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: SIMULADOR -->
+        <section class="slide">
+            <div class="max-w-7xl mx-auto w-full h-full flex flex-col">
+                <div class="flex justify-between items-end mb-4">
+                    <div>
+                        <h2 class="font-display text-3xl font-bold text-slate-900">Simulador de Arranque</h2>
+                        <p class="text-sm text-slate-500">Replicando lo aprendido en Sala de Control</p>
+                    </div>
+                    <div class="flex gap-4 font-mono text-sm bg-white px-4 py-2 rounded shadow border border-slate-200">
+                        <span id="status-text" class="font-bold text-slate-400">DETENIDO</span>
+                        <span class="text-slate-300">|</span>
+                        <span id="rpm-output" class="text-ypf-blue font-bold">0 RPM</span>
+                        <span class="text-slate-300">|</span>
+                        <span id="power-output" class="font-bold">0 MW</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6 flex-grow">
+                    <!-- SVG Diagrama (8 cols) -->
+                    <div class="col-span-8 card bg-white p-4 relative flex items-center shadow-inner bg-slate-50">
+                        <svg id="cc-diagram" viewBox="0 0 600 350" class="w-full h-auto">
+                            <defs>
+                                <path id="flame" d="M-2 5.5s-2.14-3.84-2.14-6.16c0-2.92 2.38-4.84 4.14-4.84 1.76 0 4.14 1.92 4.14 4.84C4.14 1.66 2 5.5 2 5.5z"/>
+                            </defs>
+                            
+                            <!-- Tuberías estáticas -->
+                            <g stroke="#cbd5e1" stroke-width="2" fill="none">
+                                <path d="M100 70 H 200" /> <path d="M100 270 H 200" />
+                                <path d="M230 70 H 310 C 325 70 325 150 340 150" />
+                                <path d="M230 270 H 310 C 325 270 325 170 340 170" />
+                            </g>
+
+                            <!-- Flujos Dinámicos -->
+                            <path id="flow-gas1" class="flow-path" d="M100 70 H 200" stroke="#f97316" stroke-width="3" style="display:none;" fill="none"/>
+                            <path id="flow-gas2" class="flow-path" d="M100 270 H 200" stroke="#f97316" stroke-width="3" style="display:none;" fill="none"/>
+                            <path id="flow-steam-h" class="flow-path" d="M230 70 H 310 C 325 70 325 150 340 150" stroke="#0ea5e9" stroke-width="3" style="display:none;" fill="none"/>
+                            <path id="flow-steam-l" class="flow-path" d="M230 270 H 310 C 325 270 325 170 340 170" stroke="#0ea5e9" stroke-width="3" style="display:none;" fill="none"/>
+                            <path id="flow-sfc" class="flow-path" d="M 60 320 V 70 H 120" stroke="#16a34a" stroke-width="3" style="display:none;" fill="none"/>
+
+                            <!-- Equipos -->
+                            <!-- TG1 -->
+                            <g>
+                                <rect x="20" y="50" width="80" height="40" fill="white" stroke="#334155" stroke-width="2" rx="4"/>
+                                <text x="35" y="75" fill="#334155" font-size="12" font-weight="bold">TG 1</text>
+                                <g transform="translate(60, 70)">
+                                    <g class="spin" id="tg1-rotor">
+                                        <path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#334155" stroke-width="2"/>
+                                    </g>
+                                </g>
+                                <use href="#flame" x="60" y="40" id="combustion-flame1" class="combustion-effect" style="display:none; fill:orange;"/>
+                            </g>
+                            <!-- TG2 -->
+                            <g>
+                                <rect x="20" y="250" width="80" height="40" fill="white" stroke="#334155" stroke-width="2" rx="4"/>
+                                <text x="35" y="275" fill="#334155" font-size="12" font-weight="bold">TG 2</text>
+                                <g transform="translate(60, 270)">
+                                    <g class="spin" id="tg2-rotor">
+                                        <path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#334155" stroke-width="2"/>
+                                    </g>
+                                </g>
+                                <use href="#flame" x="60" y="240" id="combustion-flame2" class="combustion-effect" style="display:none; fill:orange;"/>
+                            </g>
+                            <!-- HRSG -->
+                            <g><rect x="200" y="40" width="30" height="60" fill="#f1f5f9" stroke="#334155" stroke-width="2" /><text x="202" y="75" fill="#475569" font-size="9" font-weight="bold">HRSG</text></g>
+                            <g><rect x="200" y="240" width="30" height="60" fill="#f1f5f9" stroke="#334155" stroke-width="2" /><text x="202" y="275" fill="#475569" font-size="9" font-weight="bold">HRSG</text></g>
+                            <!-- TV -->
+                            <g>
+                                <rect x="340" y="140" width="80" height="40" fill="white" stroke="#003366" stroke-width="2" rx="4"/>
+                                <text x="355" y="165" fill="#003366" font-size="12" font-weight="bold">TV</text>
+                                <g transform="translate(380, 160)">
+                                    <g class="spin" id="tv-rotor">
+                                        <path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#003366" stroke-width="2"/>
+                                    </g>
+                                </g>
+                            </g>
+                            <!-- SFC -->
+                            <g>
+                                <rect x="30" y="320" width="60" height="30" fill="#dcfce7" stroke="#16a34a" stroke-width="2" rx="4"/>
+                                <text x="45" y="340" fill="#15803d" font-size="10" font-weight="bold">SFC</text>
+                                <circle id="sfc-led" cx="80" cy="335" r="4" fill="#cbd5e1" />
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Panel Lógico (4 cols) -->
+                    <div class="col-span-4 flex flex-col gap-4">
+                        <div class="card p-6 flex-grow bg-white border border-slate-200">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest border-b pb-2">Lógica de Control</h3>
+                            <div class="space-y-4 text-sm font-medium text-slate-600">
+                                <div class="flex items-center justify-between">
+                                    <span>1. SFC (Arrancador)</span>
+                                    <div id="ind-sfc" class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 transition-all duration-300"></div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>2. Barrido (>1400 RPM)</span>
+                                    <div id="ind-barrido" class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 transition-all duration-300"></div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>3. Fuego Detectado</span>
+                                    <div id="ind-fire" class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 transition-all duration-300"></div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>4. Sincronismo (3000 RPM)</span>
+                                    <div id="ind-sync" class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 transition-all duration-300"></div>
+                                </div>
+                            </div>
+                            <div id="logic-msg" class="mt-8 p-3 bg-slate-100 text-slate-500 text-center text-xs font-bold rounded border border-slate-200 transition-all">
+                                Sistema Listo.
+                            </div>
+                        </div>
+                        <button id="sim-btn" class="w-full bg-ypf-blue hover:bg-blue-800 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-1">
+                            INICIAR SECUENCIA
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: CULTURA Y VALORES -->
+        <section class="slide">
+            <div class="max-w-7xl mx-auto w-full">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="h-1 flex-grow bg-slate-200"></div>
+                    <h2 class="font-display text-3xl font-bold text-slate-900 text-center">Cultura Organizacional</h2>
+                    <div class="h-1 flex-grow bg-slate-200"></div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12">
+                    <!-- Valores -->
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold text-slate-800 text-ypf-blue">Valores y Principios</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="card p-4 border-t-4 border-ypf-light bg-blue-50/30">
+                                <h4 class="font-bold text-slate-800">Integridad</h4>
+                                <p class="text-xs text-slate-500 mt-1">Ética y cumplimiento.</p>
+                            </div>
+                            <div class="card p-4 border-t-4 border-school bg-red-50/30">
+                                <h4 class="font-bold text-slate-800">Pasión</h4>
+                                <p class="text-xs text-slate-500 mt-1">Excelencia en cada tarea.</p>
+                            </div>
+                            <div class="card p-4 border-t-4 border-green-500 bg-green-50/30">
+                                <h4 class="font-bold text-slate-800">Sostenibilidad</h4>
+                                <p class="text-xs text-slate-500 mt-1">Respeto ambiental.</p>
+                            </div>
+                            <div class="card p-4 border-t-4 border-orange-500 bg-orange-50/30">
+                                <h4 class="font-bold text-slate-800">Trabajo en Equipo</h4>
+                                <p class="text-xs text-slate-500 mt-1">Colaboración total.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seguridad -->
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold text-slate-800 text-red-600">Política de Seguridad</h3>
+                        <div class="card p-6 border-l-4 border-red-500 bg-red-50 shadow-sm">
+                            <h4 class="font-bold text-red-800 text-lg">STOP WORK AUTHORITY</h4>
+                            <p class="text-slate-700 mt-2 text-sm">
+                                Aprendimos que la seguridad es innegociable. Tenemos la autoridad y obligación de detener cualquier tarea insegura.
+                            </p>
+                        </div>
+                        <div class="card p-4 border-l-4 border-yellow-500 bg-yellow-50/50">
+                            <h4 class="font-bold text-yellow-800">LOTO (Lock-Out / Tag-Out)</h4>
+                            <p class="text-sm text-yellow-700">Aislamiento de energías peligrosas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: APORTES (NUEVO) -->
+        <section class="slide">
+            <div class="max-w-6xl mx-auto w-full">
+                <h2 class="font-display text-4xl font-bold text-slate-900 mb-8 text-center">Nuestra Visión y Aportes</h2>
                 <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Turbinas de Gas -->
-                    <div>
-                        <h3 class="text-2xl font-bold mb-2 text-sky-300">Turbinas de Gas (TG) – modelo GT26 AB HE</h3>
-                        <ul class="list-disc list-inside space-y-2 text-sm">
-                            <li><b>Tecnología:</b> ALSTOM/GE GT26, 50 Hz, con combustión secuencial (EV/SEV) y compresor de relación de compresión ~30:1.</li>
-                            <li><b>Velocidad síncrona:</b> 3000 rpm (sistema 50 Hz).</li>
-                            <li><b>Potencia unitaria:</b> ~285 MW (según apuntes; dependiente de ISO/ambiente y upgrades).</li>
-                            <li><b>Flujo de proceso:</b> Aire ambiente → filtros (prefiltro/final) → compresor → cámara(s) de combustión (gas natural de Metrogas) → turbina → descarga a HRSG (~650 °C).</li>
-                            <li><b>Arranque y sincronización:</b> mediante SFC (ver 5.5), que acelera el generador como motor hasta régimen de encendido de la TG.</li>
-                            <li><b>Aspectos de operación:</b> VGV en admisión, control de emisiones y límites de gradientes térmicos en transitorios.</li>
-                        </ul>
-                         <img class="w-full h-48 mt-4 bg-slate-900 rounded-lg flex items-center justify-center text-gray-500 object-cover clickable-image" src="https://www.ansaldoenergia.com/fileadmin/hotspots/gt26-step-3-hotspot-3.png" alt="Diagrama funcional de la TG con compresión, combustión secuencial y expansión" data-title="Diagrama de la Turbina de Gas (TG)">
+                    <div class="card p-8 border-t-4 border-ypf-blue hover:-translate-y-1 transition">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">Sugerencia: Campus Virtual</h3>
+                        <p class="text-slate-600 text-sm">
+                            Propusimos crear un repositorio interno de lectura para agilizar el onboarding de futuros pasantes, con guías no sensibles y resúmenes técnicos.
+                        </p>
                     </div>
-                    <!-- Caldera de Recuperación -->
-                    <div>
-                        <h3 class="text-2xl font-bold mb-2 text-sky-300">Caldera de recuperación (HRSG)</h3>
-                        <ul class="list-disc list-inside space-y-2 text-sm">
-                            <li><b>Configuración:</b> tren de calor con Economizador (Eco), Evaporador (Evap) y Sobrecalentador (SH); punto de aproach y pinch ajustados a backpressure de TG.</li>
-                            <li><b>Servicios auxiliares:</b> ventiladores, drenajes y by-pass a chimenea cuando la TV está fuera de servicio.</li>
-                            <li><b>Control:</b> válvulas de aislamiento y control de tiro; instrumentación para presión/temperatura/caudal.</li>
-                        </ul>
-                        <img class="w-full h-48 mt-4 bg-slate-900 rounded-lg flex items-center justify-center text-gray-500 object-cover clickable-image" src="https://www.isastur.com/assets/uploads/noticias/539e3-image002.jpg" alt="P&ID simplificado de la HRSG" data-title="P&ID simplificado de la HRSG">
-                    </div>
-                </div>
-
-                <hr class="my-8 border-slate-700">
-
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Turbina de Vapor -->
-                    <div>
-                        <h3 class="text-2xl font-bold mb-2 text-sky-300">Turbina de vapor (TV) y tren de vapor</h3>
-                        <ul class="list-disc list-inside space-y-2 text-sm">
-                            <li><b>Tipo:</b> Alstom DKZ2‑1N41 (según apuntes).</li>
-                            <li><b>Potencia bruta:</b> ~291 MW.</li>
-                            <li><b>Cuerpos:</b> Alta presión (AP), media presión (MP) y baja presión (BP); secuencias de vapor con recalentamiento según diseño.</li>
-                            <li><b>Condiciones de vapor:</b> sobrecalentado desde HRSG; retorno al condensador en descarga BP.</li>
-                        </ul>
-                        <img class="w-full h-48 mt-4 bg-slate-900 rounded-lg flex items-center justify-center text-gray-500 object-cover clickable-image" src="https://s.alicdn.com/@sc04/kf/H3dfbc370758d48029309557fc7a7bd5ao.jpg" alt="Corte esquemático de la turbina de vapor y trayectorias de vapor" data-title="Corte esquemático de la Turbina de Vapor">
-                    </div>
-                    <!-- Condensador y Agua -->
-                    <div>
-                        <h3 class="text-2xl font-bold mb-2 text-sky-300">Condensador, sistema de agua de circulación y tratamiento de agua</h3>
-                        <ul class="list-disc list-inside space-y-2 text-sm">
-                            <li><b>Condensador:</b> superficies tubulares y vacío controlado; retorno a líquido del vapor de escape.</li>
-                            <li><b>Agua de circulación:</b> captación Río de la Plata → canal → bombas → condensador → vertido/torre/enfriador (según configuración).</li>
-                            <li><b>Alimentación de caldera:</b> tanque de agua de alimentación (domo), deaeración, bombas de alta presión.</li>
-                            <li><b>Tratamiento de agua (UQ):</b> filtración, desmineralización por resinas (catiónica/ aniónica / lecho mixto), con regeneración mediante H₂SO₄ (catión) y NaOH (anión); control de conductividad muy baja y sílice.</li>
-                        </ul>
-                        <img class="w-full h-48 mt-4 bg-slate-900 rounded-lg flex items-center justify-center text-gray-500 object-cover clickable-image" src="https://blog.guroo.com.ar/wp-content/uploads/2019/12/esquema_desmineralizador.png" alt="Tren de tratamiento de agua y curvas de conductividad" data-title="Tren de tratamiento de agua">
-                    </div>
-                </div>
-
-                <hr class="my-8 border-slate-700">
-
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Sistema Eléctrico -->
-                    <div>
-                        <h3 class="text-2xl font-bold mb-2 text-sky-300">Sistema eléctrico de potencia</h3>
-                        <ul class="list-disc list-inside space-y-2 text-sm">
-                            <li><b>Generadores sincrónicos:</b> tensión de bornes ~19 kV; Sn ~390 MVA; enfriamiento por hidrógeno (ver Sección 6).</li>
-                            <li><b>Excitación:</b> estática en CC (típicamente ~0,4 kV en puente rectificador; corriente de campo del orden de kA – valores de referencia en apuntes: 1200–4000 A).</li>
-                            <li><b>Arranque SFC:</b> el Static Frequency Converter alimenta el estator del generador como motor síncrono (eje común con TG) desde 0 rpm hasta la velocidad de auto-sustentación; a partir de allí, toma combustión y el generador pasa a modo generador tras sincronismo.</li>
-                            <li><b>Niveles de tensión:</b> servicios auxiliares a 6,6 kV, barras de MT y acoplamientos a transformadores elevadores.</li>
-                            <li><b>Transformación:</b> 19 kV/132 kV (elevadores principales a AT/SADI); trafos auxiliares ~12 MVA para servicios planta.</li>
-                            <li><b>Protecciones:</b> diferenciales, distancia, sobre/infra tensiones y frecuencias, protecciones de hidrógeno y sincronismo; interruptores y seccionadores en MT/AT.</li>
-                        </ul>
-                        <img class="w-full h-48 mt-4 bg-slate-900 rounded-lg flex items-center justify-center text-gray-500 object-cover clickable-image" src="https://blog.guroo.com.ar/wp-content/uploads/2019/12/esquema_diagrama_unifilar.png" alt="Diagrama unifilar: generador 19 kV → trafo elevador 132 kV → SE 88 / SADI; trafos auxiliares 6,6 kV" data-title="Diagrama unifilar de la planta">
-                    </div>
-                    <!-- Control y Mantenimiento -->
-                    <div>
-                        <h3 class="text-2xl font-bold mb-2 text-sky-300">Control y Mantenimiento</h3>
-                        <ul class="list-disc list-inside space-y-2 text-sm">
-                            <li><b>DCS:</b> Cerebro de la planta que integra todos los subsistemas.</li>
-                            <li><b>SCADA:</b> Interfaz de monitoreo y comando (HMI).</li>
-                            <li><b>KKS:</b> Sistema de codificación para identificar cada componente.</li>
-                            <li><b>Mantenimiento:</b> Estrategias preventivas, predictivas y correctivas.</li>
-                        </ul>
-                        <img class="w-full h-48 mt-4 bg-slate-900 rounded-lg flex items-center justify-center text-gray-500 object-cover clickable-image" src="https://media.ambito.com/p/83d4047341c6ed1f7e1574ada433d847/adjuntos/239/imagenes/042/538/0042538760/ypf-jpeg.jpeg" alt="Sala de control industrial" data-title="Sala de control industrial">
+                    <div class="card p-8 border-t-4 border-school hover:-translate-y-1 transition">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">Sugerencia: Recorridos Post-Evento</h3>
+                        <p class="text-slate-600 text-sm">
+                            Sugerimos capitalizar las eventualidades reales realizando breves recorridos explicativos una vez resuelto el incidente, para maximizar el aprendizaje práctico.
+                        </p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="mea" class="fade-in-section">
-            <h1 class="section-title">Mercado Eléctrico Argentino</h1>
-            <div class="card">
-                <p class="card-title">Actores y Funcionamiento</p>
-                <div class="grid md:grid-cols-2 gap-8 items-start">
-                    <div>
-                        <h3 class="text-2xl font-bold mb-2">Rol de CAMMESA</h3>
-                        <p>CAMMESA coordina el despacho para satisfacer la demanda al mínimo costo. Dock Sud es priorizada por su eficiencia y bajos costos variables.</p>
-                        <pre class="bg-slate-900 p-4 rounded-lg mt-4 text-sm text-center">GENERACIÓN → TRANSPORTE → DISTRIBUCIÓN</pre>
-                    </div>
-                    <div class="bg-slate-900 p-4 rounded-lg">
-                        <h4 class="font-bold text-sky-400">¿Cómo se despacha?</h4>
-                        <p class="text-sm mt-2">Se arranca por "orden de mérito" (costo). El precio lo fija la última central convocada (costo marginal). Dock Sud, por su ubicación, también aporta confiabilidad a la red del AMBA.</p>
-                    </div>
+        <!-- SLIDE 9: CIERRE FINAL -->
+        <section class="slide">
+            <div class="max-w-5xl mx-auto w-full text-center">
+                <div class="mb-10">
+                    <span class="bg-school text-white px-6 py-2 rounded-full text-sm font-bold tracking-wide uppercase shadow-md">Conclusión</span>
                 </div>
-            </div>
-        </section>
-
-        <section id="generadores" class="fade-in-section">
-             <h1 class="section-title">Generadores Sincrónicos</h1>
-             <div class="card fade-in-section">
-                 <div class="grid md:grid-cols-3 gap-8 text-center">
-                       <div>
-                           <p class="card-title">Características</p>
-                           <svg class="w-16 h-16 mx-auto mb-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                           <p class="text-sm">Trifásicos, 3000 RPM, 19 kV (TG) / 11kV [Dato por confirmar] (TV), ~390 MVA. Diseñados para máxima estabilidad en la red de 50 Hz.</p>
-                       </div>
-                       <div>
-                           <p class="card-title">Refrigeración por H₂</p>
-                           <svg class="w-16 h-16 mx-auto mb-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7.014A8.003 8.003 0 0122 12c0 1.776-.582 3.428-1.564 4.748-.252.338-.516.662-.79.969M12 12c0 4.418 4.03 8 9 8a9.863 9.863 0 01-3.257-.512" /></svg>
-                           <p class="text-sm">El hidrógeno presurizado ofrece una disipación térmica superior al aire, permitiendo mayor densidad de potencia.</p>
-                       </div>
-                       <div>
-                           <p class="card-title">Excitación y Arranque</p>
-                           <svg class="w-16 h-16 mx-auto mb-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
-                           <p class="text-sm">Sistema de excitación estática con AVR y arranque de las TG mediante Convertidor Estático de Frecuencia (SFC).</p>
-                       </div>
-                 </div>
-            </div>
-        </section>
-
-        <!-- Resto de secciones (Control, Seguridad, etc.) -->
-         <section id="control" class="fade-in-section">
-             <h1 class="section-title">Control y Mantenimiento</h1>
-             <div class="card"><div class="grid md:grid-cols-2 gap-8"><div><p class="card-title">Control y Supervisión</p><ul class="list-disc list-inside space-y-2"><li><b>DCS:</b> Cerebro de la planta, integra el control de todos los subsistemas.</li><li><b>SCADA:</b> Interfaz HMI para monitoreo y comando.</li><li><b>KKS:</b> Sistema de codificación para identificar cada componente.</li></ul></div><div><p class="card-title">Estrategia de Mantenimiento</p><ul class="list-disc list-inside space-y-2"><li><b>Preventivo:</b> Inspecciones y recambios programados.</li><li><b>Predictivo:</b> Análisis de vibraciones y termografía para anticipar fallas.</li><li><b>Correctivo:</b> Reparaciones tras la ocurrencia de una falla.</li></ul></div></div></div>
-        </section>
-
-        <section id="seguridad" class="fade-in-section">
-            <h1 class="section-title">Seguridad y Medio Ambiente</h1>
-            <div class="card"><div class="grid md:grid-cols-2 gap-8"><div><p class="card-title">Cultura de Seguridad</p><p>Basada en la prevención, con políticas como <b>"Stop Work Authority"</b> y procedimientos <b>LOTO</b> (bloqueo y etiquetado).</p></div><div><div class="flex items-center space-x-4"><p class="card-title">Gestión Ambiental</p><img src="https://1000marcas.net/wp-content/uploads/2020/11/ISO-Logo.png" alt="Logo ISO 14001" class="h-10 clickable-image" data-title="Certificación ISO 14001"></div><p class="mt-2">Certificada bajo <b>ISO 14001</b> y <b>ISO 45001</b>. Se monitorean continuamente las emisiones de NOx y efluentes.</p></div></div></div>
-        </section>
-
-        <section id="conclusion" class="fade-in-section">
-            <h1 class="section-title">Conclusión Estratégica</h1>
-            <div class="card"><p>La Central Dock Sud es un activo sistémico que aporta <b>eficiencia, confiabilidad y flexibilidad</b> al mercado eléctrico argentino.</p><ul class="list-disc list-inside space-y-2 mt-4"><li><b>Eficiencia Energética:</b> Reduce costos y emisiones de CO₂ por MWh.</li><li><b>Potencia Firme:</b> Esencial para respaldar la intermitencia de fuentes renovables.</li><li><b>Ubicación Estratégica:</b> Minimiza pérdidas de transporte en el mayor centro de consumo.</li><li><b>Tecnología y Confiabilidad:</b> Alta disponibilidad y rápido arranque para la estabilidad del SADI.</li></ul></div>
-        </section>
-        
-        <section id="galeria" class="fade-in-section">
-            <h1 class="section-title">Galería</h1>
-            <div class="card">
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <img src="https://www.cdssa.com.ar/gals/slider-home/2.jpg" alt="Vista general de la Central Dock Sud" class="rounded-lg clickable-image" data-title="Vista General">
-                    <img src="https://www.cdssa.com.ar/gals/cds/nosotros-03.jpg" alt="Equipos principales" class="rounded-lg clickable-image" data-title="EQUIPO PRINCIPAL">
-                    <img src="https://resizer.glanacion.com/resizer/v2/central-termica-dock-GVLNURJFQNHEBIWX76LMKUCQ7I.jpeg?auth=85b4ba7cef78c872ddbbd28fdb806efc27d1726cd31c3becce8c7727f68fe646&width=420&height=263&quality=70&smart=true" alt="Vista nocturna" class="rounded-lg clickable-image" data-title="Vista Nocturna">
-                    <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.cdssa.com.ar%2Fprensa-galeria-de-fotos.php&psig=AOvVawWtZrnR49fDbuOUssCE55z&ust=1757964584149000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMiKksv-2I8DFQAAAAAdAAAAABAM" alt="Interior de la planta" class="rounded-lg clickable-image" data-title="Sala de Control">
+                
+                <h2 class="font-display text-5xl font-bold text-slate-900 mb-12">
+                    Una Experiencia Transformadora
+                </h2>
+                
+                <div class="bg-white p-10 rounded-2xl shadow-xl border border-slate-100 mb-12">
+                    <p class="text-xl text-slate-700 font-medium italic leading-relaxed">
+                        "Validamos en campo la teoría escolar y comprendimos la importancia de la disciplina operativa. Agradecemos profundamente a <strong>Operaciones, Mantenimiento Eléctrico/Mecánico y Seguridad</strong> por su paciencia y dedicación."
+                    </p>
                 </div>
+
+                <div class="flex justify-center gap-12 text-slate-400 font-bold uppercase tracking-widest text-sm">
+                    <span>Instituto 13 de Julio</span>
+                    <span>•</span>
+                    <span>YPF Luz - Dock Sud</span>
+                </div>
+                
+                <button onclick="location.reload()" class="mt-16 text-slate-400 hover:text-school font-medium transition flex items-center justify-center gap-2 mx-auto">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Reiniciar
+                </button>
             </div>
         </section>
-        
+
     </main>
     
-    <!-- Modal para Imágenes -->
-    <div id="image-modal" class="image-modal-backdrop fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[70] hidden opacity-0">
-        <div class="image-modal-content bg-slate-800 border border-slate-700 text-white p-4 rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] flex flex-col scale-95 opacity-0 relative">
-            <button id="modal-close-btn" class="absolute -top-4 -right-4 bg-white text-black rounded-full h-10 w-10 flex items-center justify-center text-2xl font-bold shadow-lg">&times;</button>
-            <h3 id="modal-title" class="text-2xl font-bold text-sky-400 flex-shrink-0 mb-4"></h3>
-            <div class="flex-grow overflow-hidden flex items-center justify-center">
-                <img id="modal-image" src="" alt="" class="max-w-full max-h-full object-contain">
-            </div>
-        </div>
-    </div>
-
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const sections = Array.from(document.querySelectorAll('main > section'));
-        let presentationModeActive = false;
+        // Navegación
         let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progress = document.getElementById('progress-bar');
 
-        // --- NAVEGACIÓN Y VISIBILIDAD ---
-        const navLinks = document.querySelectorAll('.nav-link');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const desktopNavContainer = document.querySelector('.hidden.md\\:flex');
-        if (desktopNavContainer) { mobileMenu.innerHTML = desktopNavContainer.innerHTML; }
-        mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        function updateSlide() {
+            slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+            progress.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+        }
+
+        function nextSlide() { if(currentSlide < slides.length - 1) { currentSlide++; updateSlide(); } }
+        function prevSlide() { if(currentSlide > 0) { currentSlide--; updateSlide(); } }
+
+        document.addEventListener('keydown', e => {
+            if(e.key === 'ArrowRight') nextSlide();
+            if(e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Simulador
+        let simInterval;
+        let isSimRunning = false;
         
-        const scrollObserver = new IntersectionObserver((entries) => {
-            if (presentationModeActive) return;
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const id = entry.target.getAttribute('id');
-                    document.querySelectorAll('.nav-link').forEach(link => {
-                        link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
-                    });
-                    const intersectingIndex = sections.findIndex(sec => sec.id === id);
-                    if (intersectingIndex !== -1) { currentSlide = intersectingIndex; }
-                }
-            });
-        }, { rootMargin: '-40% 0px -60% 0px' });
-        sections.forEach(section => scrollObserver.observe(section));
-
-        const animationObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('is-visible');
-            });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.fade-in-section').forEach(section => animationObserver.observe(section));
-
-        // --- SIMULADOR DE CICLO COMBINADO ---
-        const startBtn = document.getElementById('start-cycle-btn');
-        const powerSlider = document.getElementById('power-slider');
-        const statusText = document.getElementById('status-text');
-        const rpmOutput = document.getElementById('rpm-output');
-        const powerOutput = document.getElementById('power-output');
-        const tempOutput = document.getElementById('temp-output');
-
-        const rotors = document.querySelectorAll('.spin');
-        const flows = {
-            sfc: [document.getElementById('flow-sfc-power1'), document.getElementById('flow-sfc-power2')],
-            gas: [document.getElementById('flow-gas1'), document.getElementById('flow-gas2')],
-            steam: [document.getElementById('flow-steam-h'), document.getElementById('flow-steam-l')],
-            exhaust: [document.getElementById('flow-exhaust')],
-            water: [document.getElementById('flow-water')],
-            bypass: [document.getElementById('flow-bypass'), document.getElementById('flow-bypass2')],
-            power: Array.from(document.querySelectorAll('.power-line, #flow-main-power-1, #flow-main-power-2, #flow-main-power-v'))
+        const els = {
+            btn: document.getElementById('sim-btn'),
+            status: document.getElementById('status-text'),
+            rpm: document.getElementById('rpm-output'),
+            power: document.getElementById('power-output'),
+            msg: document.getElementById('logic-msg'),
+            sfcLed: document.getElementById('sfc-led'),
+            flows: {
+                sfc: document.getElementById('flow-sfc'),
+                gas1: document.getElementById('flow-gas1'),
+                gas2: document.getElementById('flow-gas2'),
+                steamH: document.getElementById('flow-steam-h'),
+                steamL: document.getElementById('flow-steam-l')
+            },
+            flames: [document.getElementById('combustion-flame1'), document.getElementById('combustion-flame2')],
+            inds: {
+                sfc: document.getElementById('ind-sfc'),
+                barrido: document.getElementById('ind-barrido'),
+                fire: document.getElementById('ind-fire'),
+                sync: document.getElementById('ind-sync')
+            },
+            rotors: document.querySelectorAll('.spin')
         };
-        const flames = [document.getElementById('combustion-flame1'), document.getElementById('combustion-flame2')];
-        const sfcLight = document.getElementById('sfc-light');
-        const logicIndicators = {
-            sfc: document.getElementById('logic-sfc-ok'),
-            gen: document.getElementById('logic-gen-ok'),
-            oil: document.getElementById('logic-oil-ok'),
-            gas: document.getElementById('logic-gas-ok'),
-            rpm_ign: document.getElementById('logic-rpm-ign-ok'),
-            rpm_min: document.getElementById('logic-rpm-min-ok'),
-            fire: document.getElementById('logic-fire-ok'),
-        };
-        const logicLines = {
-            sfc: document.getElementById('line-sfc'),
-            gen: document.getElementById('line-gen'),
-            oil: document.getElementById('line-oil'),
-            gas: document.getElementById('line-gas'),
-            rpm_ign: document.getElementById('line-rpm-ign'),
-            rpm_min: document.getElementById('line-rpm-min'),
-            fire: document.getElementById('line-fire'),
-            output: document.getElementById('line-output'),
-        };
-        const andGate = document.getElementById('logic-and-gate');
-        const andText = document.getElementById('logic-and-text');
-        const outputBox = document.getElementById('logic-output-box');
 
-        let cycleState = 'stopped';
-        let rpmInterval;
-        let currentRpm = 0;
+        els.btn.addEventListener('click', () => isSimRunning ? stopSim() : startSim());
 
-        function updateAnimations(speed) {
-            rotors.forEach(r => { if(r) r.style.animationDuration = `${2 / speed}s` });
-        }
-        
-        function updateDisplay() {
-            rpmOutput.textContent = `${Math.round(currentRpm)} RPM`;
+        function startSim() {
+            isSimRunning = true;
+            els.btn.textContent = "DETENER SIMULACIÓN";
+            els.btn.className = "w-full bg-red-600 hover:bg-red-800 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-1";
             
-            const powerPercent = parseFloat(powerSlider.value) / 100;
-            const isRunning = cycleState === 'running';
-
-            const totalPower = isRunning ? (870 * (powerPercent - 0.3) / 0.7) : 0;
-            powerOutput.textContent = `${Math.max(0, totalPower).toFixed(0)} MW`;
-
-            const baseTemp = 25;
-            const maxTemp = 650;
-            const temp = isRunning ? (580 + (maxTemp - 580) * ((powerPercent - 0.3) / 0.7)) : baseTemp;
-            tempOutput.textContent = `${temp.toFixed(0)} °C`;
-        }
-        
-        function updateLogicDiagram() {
-            const green = 'var(--green-400)';
-            const gray = 'var(--gray-500)';
+            let rpm = 0;
+            els.status.textContent = "ARRANCANDO (SFC)";
+            els.status.className = "font-bold text-yellow-500";
+            els.msg.textContent = "SFC Iniciado. Rodando ejes...";
+            els.msg.className = "mt-8 p-3 bg-yellow-100 text-yellow-700 text-center text-xs font-bold rounded border border-yellow-200 transition-all";
             
-            const conditions = {
-                sfc: cycleState === 'starting' || cycleState === 'igniting',
-                gen: cycleState !== 'stopped',
-                oil: cycleState !== 'stopped',
-                fire: cycleState !== 'stopped',
-                gas: cycleState === 'igniting' || cycleState === 'running',
-                rpm_ign: currentRpm >= 1400,
-                rpm_min: currentRpm >= 2700
-            };
+            els.inds.sfc.classList.add('indicator-on');
+            els.sfcLed.setAttribute('fill', '#22c55e');
+            els.flows.sfc.style.display = 'block';
+            els.rotors.forEach(r => r.style.animationDuration = '3s');
 
-            Object.keys(logicIndicators).forEach(key => {
-                const indicator = logicIndicators[key];
-                const line = logicLines[key];
-                if (indicator && line) {
-                    const isActive = conditions[key] || false;
-                    indicator.style.fill = isActive ? green : gray;
-                    line.style.stroke = isActive ? green : gray;
-                }
-            });
+            simInterval = setInterval(() => {
+                rpm += 40;
+                els.rpm.textContent = rpm + " RPM";
 
-            const startupPermissivesMet = conditions.gen && conditions.oil && conditions.fire && conditions.sfc;
-
-            if (startupPermissivesMet) {
-                andGate.style.stroke = green;
-                andText.style.fill = green;
-                logicLines.output.style.stroke = green;
-                outputBox.style.fill = green;
-            } else {
-                andGate.style.stroke = gray;
-                andText.style.fill = gray;
-                logicLines.output.style.stroke = gray;
-                outputBox.style.fill = '#334155';
-            }
-        }
-
-        function setFlowsDisplay() {
-            const show = (elements) => elements.forEach(el => { if(el) el.style.display = 'block'; });
-            const hide = (elements) => elements.forEach(el => { if(el) el.style.display = 'none'; });
-
-            hide(Object.values(flows).flat());
-            flames.forEach(f => { if(f) {f.style.display = 'none'; f.classList.remove('combustion-effect');} });
-            if (sfcLight) sfcLight.classList.remove('active');
-
-            if (cycleState === 'starting' || cycleState === 'igniting') {
-                show(flows.sfc);
-                if(sfcLight) sfcLight.classList.add('active');
-            }
-            if (cycleState === 'igniting' || cycleState === 'running') {
-                show(flows.gas);
-                flames.forEach(f => { if(f) { f.style.display = 'block'; f.classList.add('combustion-effect'); }});
-            }
-             if (cycleState === 'running' && currentRpm >= 3000) {
-                 show(flows.steam);
-                 show(flows.exhaust);
-                 show(flows.water);
-                 show(flows.power);
-                 hide(flows.bypass);
-            } else if ((cycleState === 'igniting' || cycleState === 'running') && currentRpm < 3000) {
-                 show(flows.bypass);
-            }
-        }
-
-        function startCycle() {
-            if (cycleState !== 'stopped') return;
-            
-            cycleState = 'starting';
-            startBtn.disabled = true;
-            statusText.textContent = 'Arrancando (SFC)...';
-            statusText.style.color = 'var(--yellow-400)';
-            
-            rotors.forEach(r => { if(r) r.classList.add('spin'); });
-            
-            currentRpm = 0;
-            const ignitionRpm = 1400;
-            const minTechnicalRpm = 2700;
-            const syncRpm = 3000;
-            
-            const rampUpTime = 8000; 
-            const steps = 200;
-            const stepTime = rampUpTime / steps;
-            const rpmStep = syncRpm / steps;
-            
-            rpmInterval = setInterval(() => {
-                currentRpm += rpmStep;
-
-                if (cycleState === 'starting' && currentRpm >= ignitionRpm) {
-                    cycleState = 'igniting';
-                    statusText.textContent = 'Ignición...';
-                }
-                
-                if (cycleState === 'igniting' && currentRpm >= minTechnicalRpm) {
-                    statusText.textContent = 'A Mínimo Técnico';
-                    powerSlider.disabled = false;
-                    powerSlider.value = 30;
+                if(rpm >= 1400 && els.flows.gas1.style.display === 'none') {
+                    els.inds.barrido.classList.add('indicator-on');
+                    els.inds.fire.classList.add('indicator-on');
+                    els.msg.textContent = "Ignición confirmada. Acelerando...";
+                    els.msg.className = "mt-8 p-3 bg-orange-100 text-orange-700 text-center text-xs font-bold rounded border border-orange-200 transition-all";
+                    els.status.textContent = "IGNICIÓN";
+                    els.flows.gas1.style.display = 'block';
+                    els.flows.gas2.style.display = 'block';
+                    els.flames.forEach(f => f.style.display = 'block');
+                    els.rotors.forEach(r => r.style.animationDuration = '1.5s');
                 }
 
-                if (currentRpm >= syncRpm) {
-                    currentRpm = syncRpm;
-                    clearInterval(rpmInterval);
-                    
-                    cycleState = 'running';
-                    statusText.textContent = 'Sincronizado';
-                    statusText.style.color = 'var(--green-400)';
-                    
-                    startBtn.textContent = "Detener Secuencia";
-                    startBtn.classList.replace('bg-green-600', 'bg-red-500');
-                    startBtn.classList.replace('hover:bg-green-500', 'hover:bg-red-400');
-                    startBtn.disabled = false;
+                if(rpm >= 3000) {
+                    rpm = 3000;
+                    clearInterval(simInterval);
+                    els.inds.sync.classList.add('indicator-on');
+                    els.msg.textContent = "UNIDAD EN CARGA - OPERACIÓN NORMAL";
+                    els.msg.className = "mt-8 p-3 bg-green-100 text-green-700 text-center text-xs font-bold rounded border border-green-200 transition-all";
+                    els.status.textContent = "EN CARGA";
+                    els.status.className = "font-bold text-green-600";
+                    els.power.textContent = "285 MW";
+                    els.flows.sfc.style.display = 'none';
+                    els.sfcLed.setAttribute('fill', '#cbd5e1');
+                    els.flows.steamH.style.display = 'block';
+                    els.flows.steamL.style.display = 'block';
+                    els.rotors.forEach(r => r.style.animationDuration = '0.5s');
                 }
-
-                const animationProgress = currentRpm / syncRpm;
-                updateAnimations(0.3 + animationProgress * 0.7); 
-                updateDisplay();
-                updateLogicDiagram();
-                setFlowsDisplay();
-
-            }, stepTime);
+            }, 50);
         }
 
-        function stopCycle() {
-            if (cycleState === 'stopped') return;
-            clearInterval(rpmInterval);
-            cycleState = 'stopping';
-            currentRpm = 0;
-            startBtn.disabled = true;
-            powerSlider.disabled = true;
-            powerSlider.value = 30;
-            statusText.textContent = 'Deteniendo...';
-            statusText.style.color = 'var(--yellow-400)';
-            
-            updateLogicDiagram();
-            setFlowsDisplay();
-            
-            setTimeout(() => {
-                rotors.forEach(r => { if(r) r.classList.remove('spin'); });
-                cycleState = 'stopped';
-                updateLogicDiagram();
-                setFlowsDisplay();
-                updateDisplay();
-                statusText.textContent = 'Detenido';
-                startBtn.textContent = "Iniciar Secuencia";
-                startBtn.classList.replace('bg-red-500', 'bg-green-600');
-                startBtn.classList.replace('hover:bg-red-400', 'hover:bg-green-500');
-                startBtn.disabled = false;
-            }, 1500);
+        function stopSim() {
+            isSimRunning = false;
+            clearInterval(simInterval);
+            els.btn.textContent = "INICIAR SECUENCIA DE ARRANQUE";
+            els.btn.className = "w-full bg-ypf-blue hover:bg-blue-800 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-1";
+            els.status.textContent = "DETENIDO";
+            els.status.className = "font-bold text-slate-400";
+            els.rpm.textContent = "0 RPM";
+            els.power.textContent = "0 MW";
+            els.msg.textContent = "Sistema Listo. Esperando Inicio.";
+            els.msg.className = "mt-8 p-3 bg-slate-100 text-slate-500 text-center text-xs font-bold rounded border border-slate-200 transition-all";
+            Object.values(els.flows).forEach(f => f.style.display = 'none');
+            els.flames.forEach(f => f.style.display = 'none');
+            Object.values(els.inds).forEach(i => i.classList.remove('indicator-on'));
+            els.sfcLed.setAttribute('fill', '#cbd5e1');
+            els.rotors.forEach(r => r.style.animationDuration = '0s');
         }
 
-        startBtn.addEventListener('click', () => {
-            (cycleState === 'stopped') ? startCycle() : stopCycle();
-        });
-
-        powerSlider.addEventListener('input', () => {
-            if (cycleState !== 'running') return;
-            const powerLevel = parseFloat(powerSlider.value) / 100;
-            currentRpm = 3000;
-            
-            const animationSpeed = 0.9 + (1.2 - 0.9) * ((powerLevel - 0.3) / 0.7);
-            updateAnimations(animationSpeed);
-            updateDisplay();
-            setFlowsDisplay();
-        });
-
-        const simTabs = document.getElementById('simulator-tabs');
-        if(simTabs){
-            simTabs.querySelectorAll('.tab-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    simTabs.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    const target = document.getElementById(button.dataset.target);
-                    document.querySelectorAll('#simulator-views .tab-content').forEach(tc => tc.classList.remove('active'));
-                    if(target) target.classList.add('active');
-                });
-            });
-        }
-        
-        // --- MODO PRESENTACIÓN Y OTROS ---
-        const playBtn = document.getElementById('play-presentation-btn');
-        const playIcon = document.getElementById('play-icon');
-        const stopIcon = document.getElementById('stop-icon');
-        const prevNav = document.getElementById('presentation-nav-prev');
-        const nextNav = document.getElementById('presentation-nav-next');
-        const prevBtn = prevNav.querySelector('button');
-        const nextBtn = nextNav.querySelector('button');
-        
-        // --- NUEVA FUNCIÓN DE PANTALLA COMPLETA ---
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        fullscreenBtn.addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                });
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        });
-
-        function updateNavButtons() {
-            prevBtn.disabled = currentSlide === 0;
-            nextBtn.disabled = currentSlide === sections.length - 1;
-        }
-
-        function showSlide(index) {
-            sections.forEach((slide, i) => {
-                slide.classList.toggle('active-slide', i === index);
-            });
-            const targetSection = sections[index];
-            if (targetSection) {
-                setTimeout(() => {
-                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
-            }
-            updateNavButtons();
-        }
-
-        playBtn.addEventListener('click', () => {
-            presentationModeActive = !presentationModeActive;
-            document.body.classList.toggle('presentation-mode', presentationModeActive);
-            playIcon.classList.toggle('hidden', presentationModeActive);
-            stopIcon.classList.toggle('hidden', !presentationModeActive);
-
-            const navOpacity = presentationModeActive ? '1' : '0';
-            const navEvents = presentationModeActive ? 'auto' : 'none';
-
-            prevNav.style.opacity = navOpacity;
-            nextNav.style.opacity = navOpacity;
-            prevNav.style.pointerEvents = navEvents;
-            nextNav.style.pointerEvents = navEvents;
-
-            if (presentationModeActive) {
-                showSlide(currentSlide);
-            } else {
-                sections.forEach(slide => slide.classList.remove('active-slide'));
-                const targetSection = sections[currentSlide];
-                if (targetSection) {
-                    window.scrollTo({ top: targetSection.offsetTop - 80, behavior: 'smooth' });
-                }
-            }
-        });
-
-        nextBtn.addEventListener('click', () => { if (currentSlide < sections.length - 1) { currentSlide++; showSlide(currentSlide); } });
-        prevBtn.addEventListener('click', () => { if (currentSlide > 0) { currentSlide--; showSlide(currentSlide); } });
-
-        const modal = document.getElementById('image-modal');
-        const modalImg = document.getElementById('modal-image');
-        const modalTitle = document.getElementById('modal-title');
-        const closeModalBtn = document.getElementById('modal-close-btn');
-
-        document.querySelectorAll('.clickable-image').forEach(img => {
-            img.addEventListener('click', () => {
-                modalImg.src = img.src;
-                modalTitle.textContent = img.dataset.title || 'Imagen Ampliada';
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.querySelector('.image-modal-content').classList.remove('opacity-0', 'scale-95');
-                }, 10);
-            });
-        });
-
-        const closeModal = () => {
-            modal.querySelector('.image-modal-content').classList.add('opacity-0', 'scale-95');
-            modal.classList.add('opacity-0');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        closeModalBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
-        });
-        
-        updateDisplay();
-        updateLogicDiagram();
-
-    });
+        updateSlide();
     </script>
 </body>
 </html>
