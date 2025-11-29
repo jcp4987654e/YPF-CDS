@@ -38,7 +38,7 @@
         /* Intro Screen */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background-color: #0f172a; z-index: 100;
+            background-color: #0f172a; z-index: 100; /* Capa 100 */
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             color: white; transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
         }
@@ -108,12 +108,11 @@
                 Iniciar Presentación
             </button>
         </div>
-        <div class="absolute bottom-8 text-slate-600 text-sm">Presiona F11 para Pantalla Completa Manual</div>
     </div>
 
-    <!-- Controles Flotantes -->
-    <div class="fixed top-6 right-6 z-50">
-        <button onclick="toggleFullScreen()" class="p-3 bg-white/80 backdrop-blur border border-slate-200 rounded-full shadow-lg hover:bg-white text-slate-600 transition" title="Pantalla Completa">
+    <!-- CONTROLES FLOTANTES (Z-INDEX 110 PARA ESTAR SOBRE LA INTRO) -->
+    <div class="fixed top-6 right-6 z-[110]">
+        <button onclick="toggleFullScreen()" class="p-3 bg-white/90 backdrop-blur border border-slate-200 rounded-full shadow-2xl hover:bg-white text-slate-700 transition transform hover:scale-110" title="Pantalla Completa">
             <svg id="fs-icon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
         </button>
     </div>
@@ -634,10 +633,10 @@
         document.addEventListener('keydown', e => {
             if(e.key === 'ArrowRight') nextSlide();
             if(e.key === 'ArrowLeft') prevSlide();
-            if(e.key === 'F11') e.preventDefault(); // Evitar F11 nativo para usar nuestro toggle si se desea
+            if(e.key === 'F11') e.preventDefault(); // Evitar F11 nativo
         });
 
-        // Tabs (si se necesitara reusar en futuro)
+        // Tabs
         function showTab(id) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById('content-' + id).classList.remove('hidden');
