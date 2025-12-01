@@ -38,7 +38,7 @@
         /* Intro Screen */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background-color: #0f172a; z-index: 100; /* Capa 100 */
+            background-color: #0f172a; z-index: 100;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             color: white; transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
         }
@@ -56,11 +56,12 @@
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .text-gradient { background-clip: text; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(to right, #003366, #00A3E0); }
         
-        /* Fotos Estilo Polaroid con Animación */
+        /* Fotos Estilo Polaroid */
         .photo-frame {
             background: white; padding: 12px 12px 40px 12px; 
             box-shadow: 0 10px 20px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;
             transition: transform 0.3s ease; animation: float 6s ease-in-out infinite;
+            cursor: pointer;
         }
         .photo-frame:hover { transform: scale(1.05) rotate(0deg) !important; z-index: 50; animation-play-state: paused; }
         @keyframes float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(-2deg); } }
@@ -71,24 +72,27 @@
         /* Simulador Animaciones */
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spin { animation: spin 2s linear infinite; transform-origin: center; transform-box: fill-box; }
-        
         .flow-path { stroke-dasharray: 10; animation: dash 1s linear infinite; }
         @keyframes dash { to { stroke-dashoffset: -20; } }
-        
         .combustion-effect { animation: combustion 0.2s infinite alternate; transform-box: fill-box; transform-origin: center; }
         @keyframes combustion { from { opacity: 0.8; transform: scale(0.95); fill: #f97316; } to { opacity: 1; transform: scale(1.05); fill: #ef4444; } }
-        
         .indicator-on { fill: #22c55e !important; filter: drop-shadow(0 0 4px #22c55e); }
+
+        /* Custom Slider Styling */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #ffffff; border: 2px solid #003366; cursor: pointer; margin-top: -10px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #cbd5e1; border-radius: 4px; }
+        input[type=range]:not(:disabled)::-webkit-slider-runnable-track { background: linear-gradient(to right, #00A3E0, #003366); }
+        input[type=range]:disabled { opacity: 0.5; cursor: not-allowed; }
         
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-school selection:text-white">
 
-    <!-- INTRO SCREEN (CARÁTULA INICIAL) -->
+    <!-- INTRO SCREEN -->
     <div id="intro-screen">
         <div class="text-center space-y-6 animate-fade-in-up">
             <div class="flex justify-center gap-6 mb-8">
-                <!-- Logos Simplificados (Texto) -->
                 <div class="text-2xl font-bold tracking-widest text-slate-400 uppercase">Instituto 13 de Julio</div>
                 <div class="text-2xl font-bold tracking-widest text-slate-600">|</div>
                 <div class="text-2xl font-bold tracking-widest text-ypf-light uppercase">YPF Luz</div>
@@ -110,7 +114,7 @@
         </div>
     </div>
 
-    <!-- CONTROLES FLOTANTES (Z-INDEX 110 PARA ESTAR SOBRE LA INTRO) -->
+    <!-- CONTROLES FLOTANTES -->
     <div class="fixed top-6 right-6 z-[110]">
         <button onclick="toggleFullScreen()" class="p-3 bg-white/90 backdrop-blur border border-slate-200 rounded-full shadow-2xl hover:bg-white text-slate-700 transition transform hover:scale-110" title="Pantalla Completa">
             <svg id="fs-icon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
@@ -178,7 +182,7 @@
             </div>
         </section>
 
-        <!-- SLIDE 2: EQUIPO (FOTOS) -->
+        <!-- SLIDE 2: EQUIPO -->
         <section class="slide">
             <div class="max-w-7xl mx-auto w-full h-full flex flex-col justify-center">
                 <div class="text-center mb-10">
@@ -187,20 +191,15 @@
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-16 items-center px-12">
-                    <!-- Foto Inicio -->
-                    <div class="photo-frame">
-                        <!-- REEMPLAZAR SRC CON FOTO REAL -->
-                        <img src="https://via.placeholder.com/800x600/e2e8f0/64748b?text=FOTO+GRUPAL+INICIO" class="photo-placeholder" alt="Foto Inicio">
+                    <div class="photo-frame" onclick="openModal(this)">
+                        <img src="https://i.imgur.com/xPWfpy6.jpeg" class="photo-placeholder object-cover" alt="Foto Inicio">
                         <div class="text-center mt-4">
                             <h3 class="font-bold text-slate-800 text-lg font-handwriting">El Comienzo</h3>
                             <p class="text-xs text-slate-500">Bienvenida e Inducción en Planta</p>
                         </div>
                     </div>
-
-                    <!-- Foto Cierre -->
-                    <div class="photo-frame" style="animation-name: float-rev; animation-delay: 1s;">
-                        <!-- REEMPLAZAR SRC CON FOTO REAL -->
-                        <img src="https://via.placeholder.com/800x600/003366/fff?text=FOTO+GRUPAL+CIERRE" class="photo-placeholder" alt="Foto Cierre">
+                    <div class="photo-frame" style="animation-name: float-rev; animation-delay: 1s;" onclick="openModal(this)">
+                        <img src="https://i.imgur.com/CR6cR5z.jpeg" class="photo-placeholder object-cover" alt="Foto Cierre">
                         <div class="text-center mt-4">
                             <h3 class="font-bold text-slate-800 text-lg font-handwriting">Misión Cumplida</h3>
                             <p class="text-xs text-slate-500">Cierre de Prácticas</p>
@@ -210,7 +209,7 @@
             </div>
         </section>
 
-        <!-- SLIDE 3: ETAPA 1 - FORMACIÓN -->
+        <!-- SLIDE 3: FORMACIÓN GENERAL -->
         <section class="slide">
             <div class="max-w-6xl mx-auto w-full">
                 <div class="mb-8 border-l-8 border-school pl-6">
@@ -235,8 +234,6 @@
                             </p>
                         </div>
                     </div>
-                    
-                    <!-- Historia -->
                     <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
                         <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-2">
                             <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -269,7 +266,7 @@
             </div>
         </section>
 
-        <!-- SLIDE 4: ETAPA 2 - TALLERES -->
+        <!-- SLIDE 4: TALLERES -->
         <section class="slide">
             <div class="max-w-7xl mx-auto w-full">
                 <div class="mb-8 border-l-8 border-school pl-6">
@@ -279,7 +276,6 @@
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-8 h-[60vh]">
-                    <!-- Mecánica -->
                     <div class="card p-0 overflow-hidden flex flex-col group hover:shadow-xl transition duration-300">
                         <div class="bg-orange-50 p-6 border-b border-orange-100">
                             <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
@@ -305,7 +301,6 @@
                         </div>
                     </div>
 
-                    <!-- Eléctrica -->
                     <div class="card p-0 overflow-hidden flex flex-col group hover:shadow-xl transition duration-300">
                         <div class="bg-blue-50 p-6 border-b border-blue-100">
                             <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
@@ -327,14 +322,16 @@
                                     </ul>
                                 </div>
                             </div>
-                            <img src="https://blog.guroo.com.ar/wp-content/uploads/2019/12/esquema_diagrama_unifilar.png" class="h-32 object-contain mx-auto mix-blend-multiply opacity-80 mt-4">
+                            <div class="h-36 mt-4 rounded-lg overflow-hidden border border-slate-200 cursor-pointer" onclick="openModal(this)">
+                                <img src="https://i.imgur.com/DETAYqQ.jpeg" class="w-full h-full object-cover hover:scale-110 transition duration-500">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 5: ETAPA 3 - OPERACIONES -->
+        <!-- SLIDE 5: OPERACIONES -->
         <section class="slide">
             <div class="max-w-7xl mx-auto w-full">
                 <div class="mb-8 border-l-8 border-school pl-6">
@@ -366,10 +363,9 @@
                             "Fue impactante ver cómo desde unas pantallas se controla la potencia que abastece a miles de hogares."
                         </p>
                     </div>
-                    
-                    <div class="relative">
+                    <div class="relative cursor-pointer" onclick="openModal(this)">
                         <div class="absolute -inset-4 bg-gradient-to-r from-blue-100 to-green-100 rounded-full blur-2xl opacity-50"></div>
-                        <img src="https://media.ambito.com/p/83d4047341c6ed1f7e1574ada433d847/adjuntos/239/imagenes/042/538/0042538760/ypf-jpeg.jpeg" class="relative rounded-lg shadow-2xl w-full border-4 border-white transform hover:scale-105 transition duration-500">
+                        <img src="https://i.imgur.com/DzpONFK.jpeg" class="relative rounded-lg shadow-2xl w-full border-4 border-white transform hover:scale-105 transition duration-500">
                     </div>
                 </div>
             </div>
@@ -381,76 +377,53 @@
                 <div class="flex justify-between items-end mb-4">
                     <div>
                         <h2 class="font-display text-3xl font-bold text-slate-900">Simulador de Arranque</h2>
-                        <p class="text-sm text-slate-500">Replicando lo aprendido en Sala de Control</p>
+                        <p class="text-sm text-slate-500">Secuencia: SFC (0-1700) -> Combustión -> Sync (3000) -> Carga</p>
                     </div>
                     <div class="flex gap-4 font-mono text-sm bg-white px-4 py-2 rounded shadow border border-slate-200">
                         <span id="status-text" class="font-bold text-slate-400">DETENIDO</span>
                         <span class="text-slate-300">|</span>
                         <span id="rpm-output" class="text-ypf-blue font-bold">0 RPM</span>
                         <span class="text-slate-300">|</span>
-                        <span id="power-output" class="font-bold">0 MW</span>
+                        <span id="power-output" class="font-bold text-slate-800">0 MW</span>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-12 gap-6 flex-grow">
-                    <!-- SVG Diagrama (8 cols) -->
+                    <!-- SVG Diagrama -->
                     <div class="col-span-8 card bg-white p-4 relative flex items-center shadow-inner bg-slate-50">
                         <svg id="cc-diagram" viewBox="0 0 600 350" class="w-full h-auto">
                             <defs>
                                 <path id="flame" d="M-2 5.5s-2.14-3.84-2.14-6.16c0-2.92 2.38-4.84 4.14-4.84 1.76 0 4.14 1.92 4.14 4.84C4.14 1.66 2 5.5 2 5.5z"/>
                             </defs>
-                            
-                            <!-- Tuberías estáticas -->
                             <g stroke="#cbd5e1" stroke-width="2" fill="none">
                                 <path d="M100 70 H 200" /> <path d="M100 270 H 200" />
                                 <path d="M230 70 H 310 C 325 70 325 150 340 150" />
                                 <path d="M230 270 H 310 C 325 270 325 170 340 170" />
                             </g>
-
-                            <!-- Flujos Dinámicos -->
                             <path id="flow-gas1" class="flow-path" d="M100 70 H 200" stroke="#f97316" stroke-width="3" style="display:none;" fill="none"/>
                             <path id="flow-gas2" class="flow-path" d="M100 270 H 200" stroke="#f97316" stroke-width="3" style="display:none;" fill="none"/>
                             <path id="flow-steam-h" class="flow-path" d="M230 70 H 310 C 325 70 325 150 340 150" stroke="#0ea5e9" stroke-width="3" style="display:none;" fill="none"/>
                             <path id="flow-steam-l" class="flow-path" d="M230 270 H 310 C 325 270 325 170 340 170" stroke="#0ea5e9" stroke-width="3" style="display:none;" fill="none"/>
                             <path id="flow-sfc" class="flow-path" d="M 60 320 V 70 H 120" stroke="#16a34a" stroke-width="3" style="display:none;" fill="none"/>
-
-                            <!-- Equipos -->
-                            <!-- TG1 -->
                             <g>
                                 <rect x="20" y="50" width="80" height="40" fill="white" stroke="#334155" stroke-width="2" rx="4"/>
                                 <text x="35" y="75" fill="#334155" font-size="12" font-weight="bold">TG 1</text>
-                                <g transform="translate(60, 70)">
-                                    <g class="spin" id="tg1-rotor">
-                                        <path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#334155" stroke-width="2"/>
-                                    </g>
-                                </g>
+                                <g transform="translate(60, 70)"><g class="spin" id="tg1-rotor"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#334155" stroke-width="2"/></g></g>
                                 <use href="#flame" x="60" y="40" id="combustion-flame1" class="combustion-effect" style="display:none; fill:orange;"/>
                             </g>
-                            <!-- TG2 -->
                             <g>
                                 <rect x="20" y="250" width="80" height="40" fill="white" stroke="#334155" stroke-width="2" rx="4"/>
                                 <text x="35" y="275" fill="#334155" font-size="12" font-weight="bold">TG 2</text>
-                                <g transform="translate(60, 270)">
-                                    <g class="spin" id="tg2-rotor">
-                                        <path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#334155" stroke-width="2"/>
-                                    </g>
-                                </g>
+                                <g transform="translate(60, 270)"><g class="spin" id="tg2-rotor"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#334155" stroke-width="2"/></g></g>
                                 <use href="#flame" x="60" y="240" id="combustion-flame2" class="combustion-effect" style="display:none; fill:orange;"/>
                             </g>
-                            <!-- HRSG -->
                             <g><rect x="200" y="40" width="30" height="60" fill="#f1f5f9" stroke="#334155" stroke-width="2" /><text x="202" y="75" fill="#475569" font-size="9" font-weight="bold">HRSG</text></g>
                             <g><rect x="200" y="240" width="30" height="60" fill="#f1f5f9" stroke="#334155" stroke-width="2" /><text x="202" y="275" fill="#475569" font-size="9" font-weight="bold">HRSG</text></g>
-                            <!-- TV -->
                             <g>
                                 <rect x="340" y="140" width="80" height="40" fill="white" stroke="#003366" stroke-width="2" rx="4"/>
                                 <text x="355" y="165" fill="#003366" font-size="12" font-weight="bold">TV</text>
-                                <g transform="translate(380, 160)">
-                                    <g class="spin" id="tv-rotor">
-                                        <path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#003366" stroke-width="2"/>
-                                    </g>
-                                </g>
+                                <g transform="translate(380, 160)"><g class="spin" id="tv-rotor"><path d="M-15,0 L15,0 M0,-15 L0,15" stroke="#003366" stroke-width="2"/></g></g>
                             </g>
-                            <!-- SFC -->
                             <g>
                                 <rect x="30" y="320" width="60" height="30" fill="#dcfce7" stroke="#16a34a" stroke-width="2" rx="4"/>
                                 <text x="45" y="340" fill="#15803d" font-size="10" font-weight="bold">SFC</text>
@@ -459,29 +432,40 @@
                         </svg>
                     </div>
 
-                    <!-- Panel Lógico (4 cols) -->
+                    <!-- Panel Lógico -->
                     <div class="col-span-4 flex flex-col gap-4">
                         <div class="card p-6 flex-grow bg-white border border-slate-200">
                             <h3 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest border-b pb-2">Lógica de Control</h3>
                             <div class="space-y-4 text-sm font-medium text-slate-600">
                                 <div class="flex items-center justify-between">
-                                    <span>1. SFC (Arrancador)</span>
+                                    <span>1. SFC (Arrastre 0-1700)</span>
                                     <div id="ind-sfc" class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 transition-all duration-300"></div>
                                 </div>
                                 <div class="flex items-center justify-between">
-                                    <span>2. Barrido (>1400 RPM)</span>
-                                    <div id="ind-barrido" class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 transition-all duration-300"></div>
+                                    <span>2. Ignición (1400 RPM)</span>
+                                    <div id="ind-fire" class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 transition-all duration-300"></div>
                                 </div>
                                 <div class="flex items-center justify-between">
-                                    <span>3. Fuego Detectado</span>
-                                    <div id="ind-fire" class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 transition-all duration-300"></div>
+                                    <span>3. Desconexión SFC (1700 RPM)</span>
+                                    <div id="ind-sfc-off" class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 transition-all duration-300"></div>
                                 </div>
                                 <div class="flex items-center justify-between">
                                     <span>4. Sincronismo (3000 RPM)</span>
                                     <div id="ind-sync" class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 transition-all duration-300"></div>
                                 </div>
                             </div>
-                            <div id="logic-msg" class="mt-8 p-3 bg-slate-100 text-slate-500 text-center text-xs font-bold rounded border border-slate-200 transition-all">
+                            <div class="mt-6 opacity-50 transition-opacity duration-300" id="power-control">
+                                <label class="text-xs font-bold text-slate-500 uppercase flex justify-between">
+                                    <span>Control de Carga (MW)</span>
+                                    <span id="slider-val">Mínimo Técnico</span>
+                                </label>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <span class="text-xs font-bold">150</span>
+                                    <input type="range" id="power-slider" min="150" max="890" value="150" disabled>
+                                    <span class="text-xs font-bold">890</span>
+                                </div>
+                            </div>
+                            <div id="logic-msg" class="mt-4 p-3 bg-slate-100 text-slate-500 text-center text-xs font-bold rounded border border-slate-200 transition-all">
                                 Sistema Listo.
                             </div>
                         </div>
@@ -493,7 +477,7 @@
             </div>
         </section>
 
-        <!-- SLIDE 7: CULTURA Y VALORES -->
+        <!-- SLIDE 7: CULTURA -->
         <section class="slide">
             <div class="max-w-7xl mx-auto w-full">
                 <div class="flex items-center gap-4 mb-8">
@@ -501,9 +485,7 @@
                     <h2 class="font-display text-3xl font-bold text-slate-900 text-center">Cultura Organizacional</h2>
                     <div class="h-1 flex-grow bg-slate-200"></div>
                 </div>
-
                 <div class="grid md:grid-cols-2 gap-12">
-                    <!-- Valores -->
                     <div class="space-y-6">
                         <h3 class="text-2xl font-bold text-slate-800 text-ypf-blue">Valores y Principios</h3>
                         <div class="grid grid-cols-2 gap-4">
@@ -525,8 +507,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Seguridad -->
                     <div class="space-y-6">
                         <h3 class="text-2xl font-bold text-slate-800 text-red-600">Política de Seguridad</h3>
                         <div class="card p-6 border-l-4 border-red-500 bg-red-50 shadow-sm">
@@ -565,29 +545,96 @@
             </div>
         </section>
 
-        <!-- SLIDE 9: CIERRE FINAL -->
+        <!-- SLIDE 9: CONCLUSIONES -->
         <section class="slide">
-            <div class="max-w-5xl mx-auto w-full text-center">
-                <div class="mb-10">
-                    <span class="bg-school text-white px-6 py-2 rounded-full text-sm font-bold tracking-wide uppercase shadow-md">Conclusión</span>
+            <div class="max-w-7xl mx-auto w-full">
+                <h2 class="font-display text-4xl font-bold text-slate-900 mb-10 text-center">Conclusiones Finales</h2>
+                <div class="grid md:grid-cols-2 gap-12">
+                    <div class="bg-white p-8 rounded-2xl shadow-lg border-l-8 border-ypf-blue">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-4">Impacto Técnico</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            Validamos en campo los conceptos de termodinámica y electricidad. Comprendimos que la eficiencia de un Ciclo Combinado depende de la integración perfecta entre sistemas mecánicos, eléctricos y de control.
+                        </p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl shadow-lg border-l-8 border-school">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-4">Impacto Profesional</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            Nos llevamos la certeza de que la <strong>disciplina operativa</strong>, el orden y la seguridad no son negociables. Esta práctica fue el puente definitivo entre nuestra formación escolar y el mundo laboral real.
+                        </p>
+                    </div>
                 </div>
-                
-                <h2 class="font-display text-5xl font-bold text-slate-900 mb-12">
-                    Una Experiencia Transformadora
-                </h2>
-                
-                <div class="bg-white p-10 rounded-2xl shadow-xl border border-slate-100 mb-12">
-                    <p class="text-xl text-slate-700 font-medium italic leading-relaxed">
-                        "Validamos en campo la teoría escolar y comprendimos la importancia de la disciplina operativa. Agradecemos profundamente a <strong>Operaciones, Mantenimiento Eléctrico/Mecánico y Seguridad</strong> por su paciencia y dedicación."
-                    </p>
-                </div>
+            </div>
+        </section>
 
-                <div class="flex justify-center gap-12 text-slate-400 font-bold uppercase tracking-widest text-sm">
-                    <span>Instituto 13 de Julio</span>
-                    <span>•</span>
-                    <span>YPF Luz - Dock Sud</span>
-                </div>
+        <!-- SLIDE 10: AGRADECIMIENTOS (DIVIDIDO Y DESTACADO) -->
+        <section class="slide">
+            <div class="max-w-7xl mx-auto w-full">
+                <h2 class="font-display text-4xl font-bold text-slate-900 mb-12 text-center">Agradecimientos Especiales</h2>
                 
+                <div class="grid md:grid-cols-12 gap-8">
+                    
+                    <!-- Columna Izq: ESCUELA (Destacado) -->
+                    <div class="md:col-span-5 flex flex-col justify-center">
+                        <div class="card p-10 border-l-8 border-school bg-red-50 shadow-xl transform hover:scale-105 transition duration-300">
+                            <div class="mb-6 text-school">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 14l9-5-9-5-9 5 9 5z" /><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg>
+                            </div>
+                            <h3 class="text-3xl font-bold text-slate-900 mb-2">Gestión Institucional</h3>
+                            <h4 class="text-xl font-bold text-school mb-4">Instituto 13 de Julio</h4>
+                            <p class="text-slate-700 leading-relaxed">
+                                Agradecemos profundamente al <strong>Equipo Directivo y Docente</strong> por gestionar esta oportunidad única, confiar en nosotros y acompañarnos en cada paso de este proceso formativo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Columna Der: YPF (Lista Técnica) -->
+                    <div class="md:col-span-7 grid gap-4">
+                        <div class="card p-6 bg-white border-l-4 border-ypf-blue">
+                            <h4 class="font-bold text-ypf-blue text-lg mb-2">Tutores en Planta - YPF Luz</h4>
+                            <div class="grid grid-cols-2 gap-4 text-sm text-slate-600">
+                                <div>
+                                    <p class="font-bold text-slate-800">Formación General:</p>
+                                    <p>Ing. Luis y Ing. Takeda</p>
+                                    <p>Ing. Jorge (Eléctrica)</p>
+                                    <p>Ing. Claudio (Química)</p>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-800">Seguridad:</p>
+                                    <p>Pablo (Protocolos)</p>
+                                    <p>Héctor (Incendio)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card p-6 bg-white border-l-4 border-ypf-light">
+                            <div class="grid grid-cols-2 gap-4 text-sm text-slate-600">
+                                <div>
+                                    <p class="font-bold text-slate-800">Mantenimiento Eléctrico:</p>
+                                    <p>Cristian (Supervisor)</p>
+                                    <p>Ing. Pablo Albanese</p>
+                                    <p>Héctor Zilli</p>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-800">Mantenimiento Mecánico:</p>
+                                    <p>Ariel y Lautaro</p>
+                                    <p class="mt-2 font-bold text-slate-800">Transmisión:</p>
+                                    <p>Darío</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 11: CIERRE FINAL -->
+        <section class="slide">
+            <div class="max-w-4xl mx-auto w-full text-center">
+                <div class="mb-10">
+                    <span class="bg-school text-white px-6 py-2 rounded-full text-sm font-bold tracking-wide uppercase shadow-md">Fin de la Presentación</span>
+                </div>
+                <h2 class="font-display text-6xl font-bold text-slate-900 mb-8">¡Muchas Gracias!</h2>
+                <p class="text-xl text-slate-500 font-light">Instituto 13 de Julio • Práctica Profesionalizante 2025</p>
                 <button onclick="location.reload()" class="mt-16 text-slate-400 hover:text-school font-medium transition flex items-center justify-center gap-2 mx-auto">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                     Reiniciar
@@ -598,7 +645,7 @@
     </main>
     
     <!-- Modal Imagen -->
-    <div id="modal" class="fixed inset-0 bg-slate-900/90 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm" onclick="this.classList.add('hidden')">
+    <div id="modal" class="fixed inset-0 bg-slate-900/90 z-[120] hidden flex items-center justify-center p-4 backdrop-blur-sm" onclick="this.classList.add('hidden')">
         <img id="modal-img" src="" class="max-h-[90vh] max-w-full rounded-lg shadow-2xl border-4 border-white">
     </div>
 
@@ -633,20 +680,22 @@
         document.addEventListener('keydown', e => {
             if(e.key === 'ArrowRight') nextSlide();
             if(e.key === 'ArrowLeft') prevSlide();
-            if(e.key === 'F11') e.preventDefault(); // Evitar F11 nativo
+            if(e.key === 'F11') e.preventDefault();
         });
 
-        // Tabs
-        function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('content-' + id).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        // Modal
+        function openModal(el) {
+            const img = el.querySelector('img');
+            if(img) {
+                document.getElementById('modal-img').src = img.src;
+                document.getElementById('modal').classList.remove('hidden');
+            }
         }
 
-        // Simulador Completo
+        // SIMULADOR LOGICO
         let simInterval;
         let isSimRunning = false;
+        let hasSynced = false;
         
         const els = {
             btn: document.getElementById('sim-btn'),
@@ -655,6 +704,8 @@
             power: document.getElementById('power-output'),
             msg: document.getElementById('logic-msg'),
             sfcLed: document.getElementById('sfc-led'),
+            slider: document.getElementById('power-slider'),
+            sliderDiv: document.getElementById('power-control'),
             flows: {
                 sfc: document.getElementById('flow-sfc'),
                 gas1: document.getElementById('flow-gas1'),
@@ -665,25 +716,26 @@
             flames: [document.getElementById('combustion-flame1'), document.getElementById('combustion-flame2')],
             inds: {
                 sfc: document.getElementById('ind-sfc'),
-                barrido: document.getElementById('ind-barrido'),
                 fire: document.getElementById('ind-fire'),
+                sfcOff: document.getElementById('ind-sfc-off'),
                 sync: document.getElementById('ind-sync')
             },
             rotors: document.querySelectorAll('.spin')
         };
 
         if(els.btn) els.btn.addEventListener('click', () => isSimRunning ? stopSim() : startSim());
+        if(els.slider) els.slider.addEventListener('input', updatePower);
 
         function startSim() {
             isSimRunning = true;
+            hasSynced = false;
             els.btn.textContent = "DETENER SIMULACIÓN";
             els.btn.className = "w-full bg-red-600 hover:bg-red-800 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-1";
             
             let rpm = 0;
             els.status.textContent = "ARRANCANDO (SFC)";
             els.status.className = "font-bold text-yellow-500";
-            els.msg.textContent = "SFC Iniciado. Rodando ejes...";
-            els.msg.className = "mt-8 p-3 bg-yellow-100 text-yellow-700 text-center text-xs font-bold rounded border border-yellow-200 transition-all";
+            els.msg.textContent = "SFC Iniciado. Arrastre de ejes...";
             
             els.inds.sfc.classList.add('indicator-on');
             els.sfcLed.setAttribute('fill', '#22c55e');
@@ -691,55 +743,75 @@
             els.rotors.forEach(r => r.style.animationDuration = '3s');
 
             simInterval = setInterval(() => {
-                rpm += 40;
-                els.rpm.textContent = rpm + " RPM";
+                if (rpm < 3000) { rpm += 25; els.rpm.textContent = rpm + " RPM"; }
 
-                if(rpm >= 1400 && els.flows.gas1.style.display === 'none') {
-                    els.inds.barrido.classList.add('indicator-on');
+                if (rpm >= 1400 && els.flows.gas1.style.display === 'none') {
                     els.inds.fire.classList.add('indicator-on');
-                    els.msg.textContent = "Ignición confirmada. Acelerando...";
-                    els.msg.className = "mt-8 p-3 bg-orange-100 text-orange-700 text-center text-xs font-bold rounded border border-orange-200 transition-all";
                     els.status.textContent = "IGNICIÓN";
+                    els.msg.textContent = "Fuego detectado.";
                     els.flows.gas1.style.display = 'block';
                     els.flows.gas2.style.display = 'block';
                     els.flames.forEach(f => f.style.display = 'block');
                     els.rotors.forEach(r => r.style.animationDuration = '1.5s');
                 }
 
-                if(rpm >= 3000) {
-                    rpm = 3000;
-                    clearInterval(simInterval);
-                    els.inds.sync.classList.add('indicator-on');
-                    els.msg.textContent = "UNIDAD EN CARGA - OPERACIÓN NORMAL";
-                    els.msg.className = "mt-8 p-3 bg-green-100 text-green-700 text-center text-xs font-bold rounded border border-green-200 transition-all";
-                    els.status.textContent = "EN CARGA";
-                    els.status.className = "font-bold text-green-600";
-                    els.power.textContent = "285 MW";
+                if (rpm >= 1700 && els.flows.sfc.style.display !== 'none') {
+                    els.inds.sfcOff.classList.add('indicator-on');
+                    els.status.textContent = "AUTO-SUSTENTADO";
+                    els.msg.textContent = "SFC Desconectado.";
                     els.flows.sfc.style.display = 'none';
                     els.sfcLed.setAttribute('fill', '#cbd5e1');
+                }
+
+                if (rpm >= 3000 && !hasSynced) {
+                    hasSynced = true;
+                    rpm = 3000;
+                    els.rpm.textContent = "3000 RPM";
+                    clearInterval(simInterval);
+                    els.inds.sync.classList.add('indicator-on');
+                    els.status.textContent = "SINCRONIZADO";
+                    els.status.className = "font-bold text-green-600";
+                    els.msg.textContent = "Unidad en Red. Aumente carga.";
+                    els.msg.className = "mt-4 p-3 bg-green-100 text-green-700 text-center text-xs font-bold rounded border border-green-200 transition-all";
                     els.flows.steamH.style.display = 'block';
                     els.flows.steamL.style.display = 'block';
                     els.rotors.forEach(r => r.style.animationDuration = '0.5s');
+                    
+                    els.slider.disabled = false;
+                    els.slider.value = 150;
+                    els.sliderDiv.classList.remove('opacity-50');
+                    updatePower();
                 }
             }, 50);
+        }
+
+        function updatePower() {
+            if (!hasSynced) return;
+            const mw = els.slider.value;
+            els.power.textContent = mw + " MW";
+            if (mw > 850) els.msg.textContent = "PLENA CARGA (BASE LOAD)";
+            else els.msg.textContent = "Carga Parcial: " + mw + " MW";
         }
 
         function stopSim() {
             isSimRunning = false;
             clearInterval(simInterval);
-            els.btn.textContent = "INICIAR SECUENCIA DE ARRANQUE";
+            els.btn.textContent = "INICIAR SECUENCIA";
             els.btn.className = "w-full bg-ypf-blue hover:bg-blue-800 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-1";
             els.status.textContent = "DETENIDO";
             els.status.className = "font-bold text-slate-400";
             els.rpm.textContent = "0 RPM";
             els.power.textContent = "0 MW";
-            els.msg.textContent = "Sistema Listo. Esperando Inicio.";
-            els.msg.className = "mt-8 p-3 bg-slate-100 text-slate-500 text-center text-xs font-bold rounded border border-slate-200 transition-all";
+            els.msg.textContent = "Sistema Listo.";
+            els.msg.className = "mt-4 p-3 bg-slate-100 text-slate-500 text-center text-xs font-bold rounded border border-slate-200 transition-all";
             Object.values(els.flows).forEach(f => f.style.display = 'none');
             els.flames.forEach(f => f.style.display = 'none');
             Object.values(els.inds).forEach(i => i.classList.remove('indicator-on'));
             els.sfcLed.setAttribute('fill', '#cbd5e1');
             els.rotors.forEach(r => r.style.animationDuration = '0s');
+            els.slider.disabled = true;
+            els.slider.value = 150;
+            els.sliderDiv.classList.add('opacity-50');
         }
 
         updateSlide();
